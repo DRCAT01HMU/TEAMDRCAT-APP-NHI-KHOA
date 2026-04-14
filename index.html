@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="vi" class="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>CASE LÂM SÀNG NHI KHOA</title>
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#0f172a">
+    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/3004/3004458.png">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="TDC Nhi">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;700;900&family=Plus+Jakarta+Sans:wght@500;700;800&display=swap');
+        body { font-family: 'Outfit', sans-serif; -webkit-tap-highlight-color: transparent; }
+        h1, h2, h3, .font-heading { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .app-header { padding-top: env(safe-area-inset-top); }
+        .app-footer { padding-bottom: calc(env(safe-area-inset-bottom) + 20px); }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        @keyframes radar { 0% { top: -10%; opacity: 0; } 50% { opacity: 1; } 100% { top: 110%; opacity: 0; } }
+        @keyframes shimmer { 100% { transform: translateX(400%); } }
+        @keyframes float-up { 0% { opacity: 0; transform: translateY(20px); } 100% { opacity: 1; transform: translateY(0); } }
+        .card-anim { animation: float-up 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; opacity: 0; }
+        
+        /* Glass Tabs */
+        .tab-active {
+            background: rgba(255,255,255,0.2) !important;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.4) !important;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+    </style>
+    <script>
+        tailwind.config = { darkMode: 'class', theme: { extend: { colors: { primary: '#0f172a' } } } }
+    </script>
+
+    <!-- AUTH LOGIC V4 -->
+    <script>
+        const AUTH_API = "https://script.google.com/macros/s/AKfycbzUNA96SRsLQv7hlu83GAx6L85kEia8S52KY7nCRfWLlpJslMAT_Z-n9PMOoG_RNW6Q/exec";
+        let deviceId = localStorage.getItem('TDC_DEVICE_ID_NHI');
+        if (!deviceId) {
+            deviceId = "TDC-" + Math.random().toString(36).substring(2, 6).toUpperCase() + "-" + Math.random().toString(36).substring(2, 6).toUpperCase();
+            localStorage.setItem('TDC_DEVICE_ID_NHI', deviceId);
+        }
+
+        function checkAuth() {
+            if (localStorage.getItem('TDC_APPROVED_NHI') === 'true') {
+                setInterval(silentVerify, 10000); 
+                return;
+            }
+            document.addEventListener('DOMContentLoaded', () => {
+                document.getElementById('lock-screen').style.display = 'flex';
+                document.body.style.overflow = 'hidden';
+                verifyWithServer();
+            });
+        }
+
+        function verifyWithServer() {
+            const statusText = document.getElementById('lock-status');
+            const lockContainer = document.getElementById('lock-container');
+            const lockScreen = document.getElementById('lock-screen');
+            if(!statusText) return;
+            statusText.innerText = "Đang mã hóa tín hiệu Server...";
+            lockContainer.classList.add('hidden');
+
+            fetch(AUTH_API + "?id=" + deviceId)
+                .then(r => r.json())
+                .then(data => {
+                    if (data.status === "approved" || data.status === "ok") {
+                        localStorage.setItem('TDC_APPROVED_NHI', 'true');
+                        lockScreen.style.opacity = '0';
+                        setTimeout(() => { lockScreen.style.display = 'none'; document.body.style.overflow = 'auto'; }, 500);
+                    } else {
+                        statusText.innerHTML = "Chào mừng Sinh Viên Y Khoa.<br>Vui lòng sao chép mã thiết bị để kích hoạt APP NHI KHOA.";
+                        document.getElementById('lock-device-code').value = deviceId;
+                        lockContainer.classList.remove('hidden');
+                    }
+                })
+                .catch(e => {
+                    statusText.innerHTML = "Offline.<br>Yêu cầu mạng di động/WiFi để xác thực khóa.";
+                    lockContainer.classList.remove('hidden');
+                });
+        }
+
+        function silentVerify() {
+            if(navigator.onLine && localStorage.getItem('TDC_APPROVED_NHI') === 'true') {
+                fetch(AUTH_API + "?id=" + deviceId).then(r => r.json()).then(data => {
+                    if(data.status === "locked" || data.status === "error") {
+                        localStorage.setItem('TDC_APPROVED_NHI', 'false'); window.location.reload();
+                    }
+                }).catch(e => {});
+            }
+        }
+
+        function copyDeviceId() {
+            try {
+                if (navigator.clipboard && window.isSecureContext) {
+                    navigator.clipboard.writeText(deviceId);
+                } else {
+                    const textArea = document.createElement("textarea");
+                    textArea.value = deviceId;
+                    document.body.appendChild(textArea);
+                    textArea.focus();
+                    textArea.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(textArea);
+                }
+            } catch(err) {
+                console.error('Copy failed', err);
+            }
+            const btn = document.getElementById('copyBtn');
+            btn.innerHTML = '<i class="fas fa-check text-green-400 text-xl"></i> <span class="tracking-wide text-green-400">ĐÃ LƯU VÀO BỘ NHỚ</span>';
+            setTimeout(() => { btn.innerHTML = '<div class="absolute inset-0 w-1/4 bg-white/10 -skew-x-12 -translate-x-full group-hover:animate-[shimmer_1.5s_infinite]"></div><i class="fas fa-paste text-xl text-emerald-400"></i> <span class="tracking-wide">SAO CHÉP MÃ THIẾT BỊ</span>'; }, 3000);
+        }
+
+        checkAuth();
+    </script>
+</head>
+<body class="bg-gray-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 min-h-screen app-footer transition-colors duration-500">
+
+    <!-- THE LOCK SCREEN V4 (CYBER SECURITY) -->
+    <div id="lock-screen" class="fixed inset-0 z-[100000] bg-slate-900 flex-col items-center justify-center p-6 text-center select-none transition-opacity duration-500" style="display: none; background: radial-gradient(circle at center, #1e293b 0%, #020617 100%);">
+        <div class="relative w-40 h-40 mb-8 flex items-center justify-center">
+            <div class="absolute inset-0 rounded-full border border-emerald-500/30 animate-[ping_3s_infinite]"></div>
+            <div class="absolute inset-4 rounded-full border border-emerald-400/50 animate-[ping_2s_infinite]"></div>
+            <div class="w-24 h-24 bg-gradient-to-br from-emerald-500 to-teal-800 rounded-full flex items-center justify-center shadow-[0_0_50px_rgba(16,185,129,0.6)] border border-emerald-300 z-10 relative overflow-hidden">
+                <i class="fas fa-baby text-5xl text-emerald-100 opacity-90"></i>
+                <div class="absolute top-0 w-full h-1 bg-white shadow-[0_0_15px_white] animate-[radar_2s_linear_infinite]"></div>
+            </div>
+            <div class="absolute -top-2 -right-2 w-10 h-10 bg-slate-800/80 backdrop-blur-md rounded-full border border-slate-600 flex items-center justify-center shadow-[0_0_15px_rgba(16,185,129,0.5)] z-20">
+                <i class="fas fa-stethoscope text-emerald-400 text-sm"></i>
+            </div>
+        </div>
+        
+        <h2 class="font-heading text-transparent bg-clip-text bg-gradient-to-r from-teal-200 via-emerald-400 to-green-300 font-extrabold text-3xl mb-2 tracking-[0.05em]" style="text-shadow: 0 0 30px rgba(16,185,129,0.4);">TÀI LIỆU NỘI BỘ</h2>
+        <p id="lock-status" class="text-slate-300 text-[13px] mb-8 max-w-xs font-medium bg-slate-800/40 backdrop-blur-xl py-2 px-6 rounded-full border border-slate-700/50 shadow-inner">Initializing protocols...</p>
+        
+        <div id="lock-container" class="hidden flex flex-col items-center w-full max-w-sm">
+            <div class="relative w-full mb-6 group cursor-pointer" onclick="copyDeviceId()">
+                <div class="absolute inset-0 bg-emerald-500/10 rounded-2xl blur-xl group-hover:bg-emerald-500/30 transition-all duration-500"></div>
+                <input type="text" id="lock-device-code" class="w-full bg-slate-900/60 backdrop-blur-2xl border border-slate-700/50 hover:border-emerald-500/80 text-center text-emerald-300 font-black text-3xl tracking-[0.15em] rounded-2xl py-5 relative z-10 select-none cursor-pointer shadow-[inset_0_2px_10px_rgba(0,0,0,0.5)] transition-all duration-300" readonly>
+                <div class="absolute -top-3 left-1/2 -translate-x-1/2 bg-emerald-900 text-emerald-200 text-[10px] font-bold px-3 py-1 rounded-full z-20 border border-emerald-700 shadow-lg tracking-widest uppercase">DEVICE ID</div>
+            </div>
+            
+            <button id="copyBtn" onclick="copyDeviceId()" class="relative w-full overflow-hidden group bg-slate-800/80 backdrop-blur-md hover:bg-slate-700/90 text-white font-bold py-4 px-4 rounded-xl shadow-[0_10px_20px_rgba(0,0,0,0.3)] border border-slate-600 transition-all mb-4 flex items-center justify-center gap-3">
+                <div class="absolute inset-0 w-1/4 bg-white/5 -skew-x-12 -translate-x-full group-hover:animate-[shimmer_1.5s_infinite]"></div>
+                <i class="fas fa-paste text-xl text-emerald-400"></i> <span class="tracking-wide">SAO CHÉP MÃ THIẾT BỊ</span>
+            </button>
+            <button onclick="verifyWithServer()" class="w-full bg-transparent hover:bg-emerald-900/20 text-emerald-500 hover:text-emerald-400 font-bold py-3 px-4 border border-emerald-900/30 hover:border-emerald-500/40 rounded-xl transition-all flex items-center justify-center gap-2 group">
+                <i class="fas fa-sync-alt group-hover:rotate-180 transition-transform duration-500"></i> Xác minh
+            </button>
+        </div>
+        
+    </div>
+
+    <!-- MAIN APP LOBBY V4 -->
+    <header class="sticky top-0 z-40 app-header bg-white/70 dark:bg-slate-950/70 backdrop-blur-2xl border-b border-black/5 dark:border-white/5 shadow-sm transition-all duration-500">
+        <div class="px-5 py-3 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-gradient-to-br from-white to-slate-100 dark:from-slate-800 dark:to-slate-900 rounded-[14px] shadow-sm flex items-center justify-center border border-slate-200 dark:border-slate-800 p-2">
+                     <img src="https://cdn-icons-png.flaticon.com/512/3004/3004458.png" class="w-full h-full object-contain filter drop-shadow opacity-90" alt="Logo">
+                </div>
+                <div>
+                    <h1 class="font-heading font-black text-xl tracking-tight text-slate-800 dark:text-white">TEAMDRCAT</h1>
+                    <p id="networkStatus" class="text-[9px] uppercase font-bold tracking-widest text-emerald-500 flex items-center gap-1.5 transition-colors"><span id="networkDot" class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse transition-colors"></span> <span id="networkText">ONLINE</span></p>
+                </div>
+            </div>
+            <div class="flex items-center gap-2 shrink-0">
+                <button id="showBookmarks" class="w-10 h-10 rounded-full bg-slate-100/80 dark:bg-slate-800/80 flex items-center justify-center text-slate-400 hover:text-red-500 relative transition-colors shadow-inner border border-white dark:border-slate-700">
+                    <i class="fas fa-heart"></i>
+                    <span id="bookmarkCount" class="absolute -top-1 -right-1 bg-gradient-to-tr from-red-600 to-pink-500 text-white text-[10px] font-bold w-4 h-4 flex items-center justify-center rounded-full hidden shadow-lg">0</span>
+                </button>
+                <button id="themeToggle" class="w-10 h-10 rounded-full bg-slate-100/80 dark:bg-slate-800/80 flex items-center justify-center text-slate-600 dark:text-slate-300 transition-colors shadow-inner border border-white dark:border-slate-700">
+                    <i class="fas fa-moon dark:hidden text-emerald-500"></i>
+                    <i class="fas fa-sun hidden dark:block text-amber-500"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="relative z-10 pb-24">
+        <!-- Hero Mesh Gradient Section -->
+        <div class="relative px-6 pt-8 pb-14 bg-slate-900 text-white rounded-b-[2.5rem] shadow-2xl mb-8 mx-2 mt-2 border border-slate-800" style="background: radial-gradient(circle at 0% 0%, #10b981 0%, transparent 60%), radial-gradient(circle at 100% 100%, #3b82f6 0%, transparent 60%), #0f172a;">
+            <div class="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] mix-blend-overlay"></div>
+            <!-- Animated glowing orbs -->
+            <div class="absolute top-10 right-10 w-32 h-32 bg-emerald-500/20 rounded-full blur-3xl animate-pulse"></div>
+            <div class="absolute bottom-0 left-10 w-40 h-40 bg-teal-500/20 rounded-full blur-3xl animate-pulse" style="animation-delay: 2s;"></div>
+            
+            <div class="relative z-10">
+                
+                <h2 class="font-heading text-4xl font-extrabold mb-6 leading-tight tracking-tight">CASE LÂM SÀNG<br><span class="text-transparent bg-clip-text bg-gradient-to-r from-emerald-300 to-teal-300">NHI KHOA</span></h2>
+                
+                <!-- Search bar Glass -->
+                <div class="relative max-w-md group">
+                    <div class="absolute inset-0 bg-white/20 rounded-2xl blur-lg group-hover:bg-white/30 transition-all duration-500 opacity-50"></div>
+                    <i class="fas fa-search absolute left-5 top-1/2 -translate-y-1/2 text-white/60 text-lg z-20"></i>
+                    <input type="text" id="searchInput" placeholder="Tìm kiếm từ khóa..." 
+                           class="w-full bg-white/10 backdrop-blur-xl text-white placeholder-white/50 border border-white/20 rounded-2xl py-4 pl-14 pr-4 focus:outline-none focus:ring-2 focus:ring-emerald-300/50 transition-all font-medium shadow-[0_8px_32px_rgba(0,0,0,0.1)] relative z-10">
+                </div>
+            </div>
+            
+            <!-- Category Pills Glass -->
+            <div class="absolute bottom-0 left-0 w-full px-5 translate-y-1/2 z-20">
+                <div class="overflow-x-auto no-scrollbar whitespace-nowrap flex gap-2 pb-4 pt-2 px-1" id="categoryTabs">
+                    <!-- JS -->
+                </div>
+            </div>
+        </div>
+        
+        <!-- Stats Mini Header -->
+        <div class="px-5 mt-10 mb-5 flex items-center justify-between">
+            <div>
+                <h3 id="listTitle" class="font-heading font-black text-xl text-slate-800 dark:text-white capitalize">Tất cả bài học</h3>
+                <p class="text-xs font-semibold text-slate-400 mt-0.5"><span id="completedStat">0</span> / 23 Case đã xong</p>
+            </div>
+            <div class="w-24 h-2 bg-slate-200/50 dark:bg-slate-800 rounded-full overflow-hidden shadow-inner">
+                <div class="h-full bg-gradient-to-r from-emerald-400 to-teal-500 w-0 transition-all duration-1000 ease-out" id="progressBar"></div>
+            </div>
+        </div>
+
+        <!-- Case Cards (App Store Style) -->
+        <div class="px-5 space-y-4" id="caseList">
+            <!-- Rendered via JS -->
+        </div>
+        
+        <div id="noResults" class="hidden text-center py-16 opacity-40 grayscale">
+            <i class="fas fa-box-open text-5xl mb-4 text-slate-400"></i>
+            <p class="font-medium text-slate-500">Chưa tìm thấy dữ liệu phù hợp.</p>
+        </div>
+    </main>
+
+    <script>
+        const ALL_CASES = [
+            {"url": "3D_CASE CO GIẬT.html", "title": "CO GIẬT", "category": "Thần Kinh - Truyền Nhiễm"},
+            {"url": "3D_CASE HC NÔN TRỚ Ở TRẺ.html", "title": "HỘI CHỨNG NÔN TRỚ Ở TRẺ", "category": "Tiêu Hóa - Dinh Dưỡng"},
+            {"url": "3D_CASE HEN PHẾ QUẢN Ở TRẺ.html", "title": "HEN PHẾ QUẢN Ở TRẺ", "category": "Hô Hấp"},
+            {"url": "3D_CASE HỘI CHỨNG THẬN THƯ TIÊN PHÁT.html", "title": "HỘI CHỨNG THẬN THƯ TIÊN PHÁT", "category": "Thận - Nội Tiết"},
+            {"url": "3D_CASE HỘI CHỨNG XUẤT HUYẾT.html", "title": "HỘI CHỨNG XUẤT HUYẾT", "category": "Tim Mạch - Huyết Học"},
+            {"url": "3D_CASE NHIỄM TRÙNG ĐƯỜNG TIỂU Ở TRẺ EM.html", "title": "NHIỄM TRÙNG ĐƯỜNG TIỂU Ở TRẺ EM", "category": "Thận - Nội Tiết"},
+            {"url": "3D_CASE SUY DINH DƯỠNG.html", "title": "SUY DINH DƯỠNG", "category": "Tiêu Hóa - Dinh Dưỡng"},
+            {"url": "3D_CASE SUY GIÁP TRẠNG BẨM SINH.html", "title": "SUY GIÁP TRẠNG BẨM SINH", "category": "Thận - Nội Tiết"},
+            {"url": "3D_CASE SUY HÔ CẤP CẤP TRẺ EM.html", "title": "SUY HÔ HẤP CẤP TRẺ EM", "category": "Hô Hấp"},
+            {"url": "3D_CASE SỐC Ở TRẺ.html", "title": "SỐC Ở TRẺ", "category": "Sơ Sinh - Cấp Cứu"},
+            {"url": "3D_CASE THIẾU MÁU HUYẾT TÁN Ở TRẺ EM.html", "title": "THIẾU MÁU HUYẾT TÁN Ở TRẺ EM", "category": "Tim Mạch - Huyết Học"},
+            {"url": "3D_CASE TIM BẨM SINH.html", "title": "TIM BẨM SINH", "category": "Tim Mạch - Huyết Học"},
+            {"url": "3D_CASE TIÊU CHẢY CẤP.html", "title": "TIÊU CHẢY CẤP", "category": "Tiêu Hóa - Dinh Dưỡng"},
+            {"url": "3D_CASE TIÊU CHẢY KÉO DÀI.html", "title": "TIÊU CHẢY KÉO DÀI", "category": "Tiêu Hóa - Dinh Dưỡng"},
+            {"url": "3D_CASE TIẾP CẬN TRẺ BỆNH NẶNG.html", "title": "TIẾP CẬN TRẺ BỆNH NẶNG", "category": "Sơ Sinh - Cấp Cứu"},
+            {"url": "3D_CASE TĂNG SẢN THƯỢNG THẬN BẨM SINH.html", "title": "TĂNG SẢN THƯỢNG THẬN BẨM SINH", "category": "Thận - Nội Tiết"},
+            {"url": "3D_CASE VIÊM CẦU THẬN CẤP.html", "title": "VIÊM CẦU THẬN CẤP", "category": "Thận - Nội Tiết"},
+            {"url": "3D_CASE VIÊM MÀNG NÃO.html", "title": "VIÊM MÀNG NÃO", "category": "Thần Kinh - Truyền Nhiễm"},
+            {"url": "3D_CASE VIÊM NÃO Ở TRẺ.html", "title": "VIÊM NÃO Ở TRẺ", "category": "Thần Kinh - Truyền Nhiễm"},
+            {"url": "3D_CASE VIÊM PHẾ QUẢN PHỔI.html", "title": "VIÊM PHẾ QUẢN PHỔI", "category": "Hô Hấp"},
+            {"url": "3D_CASE VIÊM TIỂU PHẾ QUẢN.html", "title": "VIÊM TIỂU PHẾ QUẢN", "category": "Hô Hấp"},
+            {"url": "3D_CASE VÀNG DA SƠ SINH.html", "title": "VÀNG DA SƠ SINH", "category": "Sơ Sinh - Cấp Cứu"},
+            {"url": "3D_CASE XUẤT HUYẾT NỘI SỌ.html", "title": "XUẤT HUYẾT NỘI SỌ", "category": "Thần Kinh - Truyền Nhiễm"}
+        ];
+        const CATEGORIES = ["Tất cả", "Hô Hấp", "Tiêu Hóa - Dinh Dưỡng", "Thần Kinh - Truyền Nhiễm", "Thận - Nội Tiết", "Tim Mạch - Huyết Học", "Sơ Sinh - Cấp Cứu"];
+        
+        const catIcons = {
+            "Hô Hấp": "fa-lungs text-sky-500",
+            "Tiêu Hóa - Dinh Dưỡng": "fa-stomach text-amber-500",
+            "Thần Kinh - Truyền Nhiễm": "fa-brain text-pink-500",
+            "Thận - Nội Tiết": "fa-kidneys text-indigo-500",
+            "Tim Mạch - Huyết Học": "fa-heartbeat text-rose-500",
+            "Sơ Sinh - Cấp Cứu": "fa-baby text-emerald-500",
+            "Tất cả": "fa-layer-group text-slate-500"
+        };
+        
+        let currentFilter = "Tất cả";
+        let showOnlyBookmarks = false;
+        
+        const caseListEl = document.getElementById('caseList');
+        const categoryTabsEl = document.getElementById('categoryTabs');
+        const searchInput = document.getElementById('searchInput');
+        const bookmarkBtn = document.getElementById('showBookmarks');
+        
+        function getBookmarks() { return JSON.parse(localStorage.getItem('pwa_nhi_bookmarks') || '[]'); }
+        function getCompleted() { return JSON.parse(localStorage.getItem('pwa_nhi_completed') || '[]'); }
+        
+        function updateStats() {
+            const b = getBookmarks();
+            const c = getCompleted();
+            const bCnt = document.getElementById('bookmarkCount');
+            bCnt.innerText = b.length;
+            if(b.length > 0) bCnt.classList.remove('hidden'); else bCnt.classList.add('hidden');
+            
+            document.getElementById('completedStat').innerText = c.length;
+            document.getElementById('progressBar').style.width = (c.length / ALL_CASES.length * 100) + '%';
+        }
+
+        function renderCategories() {
+            categoryTabsEl.innerHTML = CATEGORIES.map(cat => {
+                const isActive = currentFilter === cat && !showOnlyBookmarks;
+                const baseClass = "px-5 py-2.5 rounded-full text-[11px] font-bold tracking-widest uppercase transition-all duration-300 border flex items-center gap-2 shrink-0 shadow-lg ";
+                const activeClass = "bg-white/20 text-white border-white/40 backdrop-blur-md";
+                const inactiveClass = "bg-slate-800/40 text-slate-300 border-slate-700/50 backdrop-blur-md hover:bg-slate-700/60";
+                
+                let iconClass = catIcons[cat] || "fa-book-medical";
+                if(isActive) iconClass = iconClass.replace(/text-\w+-\d+/, 'text-white');
+                
+                return `<button onclick="setCategory('${cat}')" class="${baseClass} ${isActive ? activeClass : inactiveClass}"><i class="fas ${iconClass} text-sm"></i> ${cat}</button>`;
+            }).join('');
+        }
+        
+        window.setCategory = function(cat) {
+            currentFilter = cat; showOnlyBookmarks = false;
+            bookmarkBtn.classList.remove('text-red-500', 'bg-red-50', 'dark:bg-red-900/40');
+            bookmarkBtn.classList.add('text-slate-400');
+            
+            // Refreeze animations
+            const cards = document.querySelectorAll('.card-anim');
+            cards.forEach(c => c.style.animation = 'none');
+            
+            document.getElementById('listTitle').innerText = (cat === "Tất cả") ? "Tất cả bài học" : cat;
+            renderCategories(); renderCases();
+        };
+        
+        bookmarkBtn.addEventListener('click', () => {
+            showOnlyBookmarks = !showOnlyBookmarks;
+            if (showOnlyBookmarks) {
+                bookmarkBtn.classList.add('text-red-500', 'bg-red-50', 'dark:bg-red-900/40');
+                bookmarkBtn.classList.remove('text-slate-400');
+                document.getElementById('listTitle').innerText = "Tủ sách lưu trữ (Heart)";
+            } else {
+                bookmarkBtn.classList.remove('text-red-500', 'bg-red-50', 'dark:bg-red-900/40');
+                bookmarkBtn.classList.add('text-slate-400');
+                document.getElementById('listTitle').innerText = (currentFilter === "Tất cả") ? "Tất cả bài học" : currentFilter;
+            }
+            renderCategories(); renderCases();
+        });
+
+        function renderCases() {
+            const term = searchInput.value.toLowerCase();
+            const bookmarks = getBookmarks();
+            const completed = getCompleted();
+            let visibleCount = 0; let html = "";
+            
+            ALL_CASES.forEach((caseItem, index) => {
+                if (showOnlyBookmarks && !bookmarks.includes(caseItem.url)) return;
+                if (!showOnlyBookmarks && currentFilter !== "Tất cả" && caseItem.category !== currentFilter) return;
+                if (term && !caseItem.title.toLowerCase().includes(term)) return;
+                
+                visibleCount++;
+                const isCompleted = completed.includes(caseItem.url);
+                const isBookmarked = bookmarks.includes(caseItem.url);
+                const animDelay = (visibleCount * 0.05) + 's';
+                
+                html += `
+                <a href="${caseItem.url}" class="card-anim block group relative bg-white/70 dark:bg-slate-900/70 backdrop-blur-xl rounded-[24px] p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.2)] hover:shadow-2xl transition-all duration-300 border border-slate-200/50 dark:border-slate-800 overflow-hidden" style="animation-delay: ${animDelay}">
+                    ${isCompleted ? '<div class="absolute top-0 right-0 w-16 h-16 bg-gradient-to-bl from-emerald-500/20 to-transparent flex items-start justify-end rounded-tr-[24px]"><i class="fas fa-check text-emerald-500 p-3 pr-4 text-lg"></i></div>' : ''}
+                    <div class="relative flex items-center justify-between z-10">
+                        <div class="flex items-center gap-4">
+                            <div class="w-14 h-14 flex-shrink-0 rounded-[18px] ${isCompleted ? 'bg-gradient-to-br from-emerald-100 to-teal-50 dark:from-emerald-900/60 dark:to-teal-900/40 border border-emerald-200 dark:border-emerald-800' : 'bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-900/40 dark:to-teal-900/20 border border-emerald-100 dark:border-emerald-800/50'} flex items-center justify-center group-hover:scale-105 group-hover:rotate-3 transition-all duration-500 shadow-inner">
+                                <i class="fas ${isCompleted ? 'fa-shield-check text-emerald-500 text-2xl' : 'fa-child text-emerald-500 text-xl'}"></i>
+                            </div>
+                            <div class="pr-6">
+                                <span class="text-[9px] font-black px-2.5 py-1 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 uppercase tracking-widest">${caseItem.category}</span>
+                                <h3 class="font-heading font-bold text-slate-800 dark:text-white line-clamp-2 mt-1.5 leading-snug group-hover:text-emerald-500 dark:group-hover:text-emerald-400 transition-colors">${caseItem.title}</h3>
+                                ${isBookmarked ? `<div class="mt-2 text-rose-500 text-xs flex items-center gap-1"><i class="fas fa-heart"></i> <span class="font-bold">Đã gắn Dấu Trang</span></div>` : ''}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="absolute inset-0 border-2 border-transparent group-hover:border-emerald-500/20 dark:group-hover:border-emerald-500/10 rounded-[24px] pointer-events-none transition-colors duration-500"></div>
+                </a>
+                `;
+            });
+            
+            caseListEl.innerHTML = html;
+            document.getElementById('noResults').classList.toggle('hidden', visibleCount > 0);
+        }
+
+        searchInput.addEventListener('input', renderCases);
+        
+        const themeToggle = document.getElementById('themeToggle');
+        const htmlContext = document.documentElement;
+        if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) { htmlContext.classList.add('dark'); }
+        themeToggle.addEventListener('click', () => { htmlContext.classList.toggle('dark'); localStorage.setItem('theme', htmlContext.classList.contains('dark') ? 'dark' : 'light'); });
+
+        renderCategories(); renderCases(); updateStats();
+        
+        window.addEventListener('focus', () => { updateStats(); renderCases(); silentVerify(); });
+
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js').then(r => console.log('SW V8 ready')).catch(e => console.error(e)));
+        }
+    
+        // NETWORK STATUS LISTENER
+        function updateNetworkStatus() {
+            const statusText = document.getElementById('networkText');
+            const statusDot = document.getElementById('networkDot');
+            const statusContainer = document.getElementById('networkStatus');
+            
+            if (!statusText) return;
+            
+            if (navigator.onLine) {
+                statusText.innerText = 'ONLINE';
+                statusDot.className = 'w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse transition-colors';
+                statusContainer.className = 'text-[9px] uppercase font-bold tracking-widest text-emerald-500 flex items-center gap-1.5 transition-colors';
+            } else {
+                statusText.innerText = 'OFFLINE';
+                statusDot.className = 'w-1.5 h-1.5 rounded-full bg-red-500 transition-colors';
+                statusContainer.className = 'text-[9px] uppercase font-bold tracking-widest text-red-500 flex items-center gap-1.5 transition-colors';
+            }
+        }
+        
+        window.addEventListener('online', updateNetworkStatus);
+        window.addEventListener('offline', updateNetworkStatus);
+        
+        // Call it once on load
+        document.addEventListener('DOMContentLoaded', updateNetworkStatus);
+
+    </script>
+</body>
+</html>

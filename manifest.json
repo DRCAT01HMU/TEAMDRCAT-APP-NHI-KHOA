@@ -1,0 +1,16 @@
+{
+    "name": "CASE LÂM SÀNG NHI KHOA",
+    "short_name": "TEST NHI KHOA",
+    "start_url": "./index.html",
+    "display": "standalone",
+    "background_color": "#f8fafc",
+    "theme_color": "#10b981",
+    "icons": [
+        {
+            "src": "https://cdn-icons-png.flaticon.com/512/3004/3004458.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "any maskable"
+        }
+    ]
+}
