@@ -33,6 +33,21 @@
             border: 1px solid rgba(255,255,255,0.4) !important;
             box-shadow: 0 4px 15px rgba(0,0,0,0.1);
         }
+
+        /* Ultimate iOS GPU Crash Fix for index.html */
+        @supports (-webkit-touch-callout: none) {
+            .backdrop-blur-md, .backdrop-blur-sm, .backdrop-blur-lg, .backdrop-blur-xl, .backdrop-blur-2xl, .backdrop-blur-3xl, .backdrop-blur {
+                -webkit-backdrop-filter: none !important;
+                backdrop-filter: none !important;
+            }
+            .bg-white\/70, .bg-white\/40, .bg-white\/50, .bg-white\/60, .bg-white\/80 { background-color: rgba(255, 255, 255, 0.98) !important; }
+            .dark .dark\:bg-slate-900\/70, .dark .dark\:bg-slate-900\/40, .dark .dark\:bg-slate-900\/50, .dark .dark\:bg-slate-900\/60, .dark .dark\:bg-slate-900\/80 { background-color: rgba(15, 23, 42, 0.98) !important; }
+            .dark .dark\:bg-slate-800\/40, .dark .dark\:bg-slate-800\/50, .dark .dark\:bg-slate-800\/60, .dark .dark\:bg-slate-800\/80 { background-color: rgba(30, 41, 59, 0.98) !important; }
+            .bg-slate-800\/80 { background-color: rgba(30, 41, 59, 0.98) !important; }
+            
+            [class*="shadow-"] { box-shadow: none !important; border: 1px solid rgba(148, 163, 184, 0.3) !important; }
+            .dark [class*="shadow-"] { border: 1px solid rgba(51, 65, 85, 0.5) !important; }
+        }
     </style>
     <script>
         tailwind.config = { darkMode: 'class', theme: { extend: { colors: { primary: '#0f172a' } } } }

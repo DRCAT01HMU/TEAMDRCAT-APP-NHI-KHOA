@@ -332,7 +332,8 @@ function App() {
     
     useEffect(() => {
         const rootEl = document.getElementById('root');
-        if (!vantaEffect && window.VANTA && rootEl) {
+        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+          if (!vantaEffect && window.VANTA && rootEl && !isIOS) {
             const isMobile = window.innerWidth < 768;
             setVantaEffect(window.VANTA.HALO({
                 el: document.body,
