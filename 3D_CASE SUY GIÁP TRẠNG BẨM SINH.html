@@ -66,6 +66,10 @@ html { scroll-behavior: smooth; }
 .animation-delay-4000 { animation-delay: 4s; }
 @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-10px); } 50% { transform: translateX(10px); } 75% { transform: translateX(-10px); } }
 .animate-shake { animation: shake 0.4s ease-in-out; }
+/* iOS PWA Fixes */
+html, body { overscroll-behavior-y: none; -webkit-overflow-scrolling: touch; }
+.overflow-y-auto { -webkit-overflow-scrolling: touch; }
+.glass-panel { transform: translateZ(0); }
 </style>
 </head>
 <body class="bg-animated text-slate-900 dark:text-slate-100 transition-colors duration-500 min-h-screen relative select-none">
