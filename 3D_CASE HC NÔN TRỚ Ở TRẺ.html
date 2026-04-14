@@ -1269,20 +1269,22 @@ root.render(<App />);
                 
                 if(heartBtn){
                     if (bookmarks.includes(fileId)) {
-                        heartBtn.querySelector('i').classList.replace('text-slate-400', 'text-red-500');
-                        heartBtn.querySelector('span').classList.replace('text-slate-400', 'text-red-500');
+                        heartBtn.classList.remove('text-slate-400'); heartBtn.classList.add('text-red-500');
+                        heartBtn.querySelector('i').style.textShadow = '0 0 10px rgba(239, 68, 68, 0.5)';
                     } else {
-                        heartBtn.querySelector('i').classList.replace('text-red-500', 'text-slate-400');
-                        heartBtn.querySelector('span').classList.replace('text-red-500', 'text-slate-400');
+                        heartBtn.classList.add('text-slate-400'); heartBtn.classList.remove('text-red-500');
+                        heartBtn.querySelector('i').style.textShadow = 'none';
                     }
                 }
                 if(checkBtn){
                     if (completed.includes(fileId)) {
-                        checkBtn.querySelector('i').classList.replace('text-slate-400', 'text-emerald-500');
-                        checkBtn.querySelector('span').classList.replace('text-slate-400', 'text-emerald-500');
+                        checkBtn.classList.remove('text-slate-400'); checkBtn.classList.add('text-emerald-400');
+                        checkBtn.querySelector('span').innerText = '100%';
+                        checkBtn.querySelector('i').style.textShadow = '0 0 10px rgba(52, 211, 153, 0.5)';
                     } else {
-                        checkBtn.querySelector('i').classList.replace('text-emerald-500', 'text-slate-400');
-                        checkBtn.querySelector('span').classList.replace('text-emerald-500', 'text-slate-400');
+                        checkBtn.classList.add('text-slate-400'); checkBtn.classList.remove('text-emerald-400');
+                        checkBtn.querySelector('span').innerText = 'ĐÃ XONG';
+                        checkBtn.querySelector('i').style.textShadow = 'none';
                     }
                 }
             }
