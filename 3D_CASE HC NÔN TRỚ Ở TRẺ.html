@@ -1261,8 +1261,8 @@ root.render(<App />);
             const fileId = '3D_CASE HC NÔN TRỚ Ở TRẺ.html';
             const btnId = 'HCNÔNTRỚỞTRẺ';
             function updateV4() {
-                const bookmarks = JSON.parse(localStorage.getItem('pwa_bookmarks') || '[]');
-                const completed = JSON.parse(localStorage.getItem('pwa_completed') || '[]');
+                const bookmarks = JSON.parse(localStorage.getItem('pwa_nhi_bookmarks') || '[]');
+                const completed = JSON.parse(localStorage.getItem('pwa_nhi_completed') || '[]');
                 
                 const heartBtn = document.getElementById('btn-bm-v4-' + btnId);
                 const checkBtn = document.getElementById('btn-cp-v4-' + btnId);
@@ -1289,15 +1289,15 @@ root.render(<App />);
                 }
             }
             window.toggleBookmarkV4 = function(fId) {
-                let b = JSON.parse(localStorage.getItem('pwa_bookmarks') || '[]');
-                if (b.includes(fId)) window.localStorage.setItem('pwa_bookmarks', JSON.stringify(b.filter(i => i !== fId)));
-                else { b.push(fId); window.localStorage.setItem('pwa_bookmarks', JSON.stringify(b)); }
+                let b = JSON.parse(localStorage.getItem('pwa_nhi_bookmarks') || '[]');
+                if (b.includes(fId)) window.localStorage.setItem('pwa_nhi_bookmarks', JSON.stringify(b.filter(i => i !== fId)));
+                else { b.push(fId); window.localStorage.setItem('pwa_nhi_bookmarks', JSON.stringify(b)); }
                 updateV4();
             };
             window.toggleCompleteV4 = function(fId) {
-                let c = JSON.parse(localStorage.getItem('pwa_completed') || '[]');
-                if (c.includes(fId)) window.localStorage.setItem('pwa_completed', JSON.stringify(c.filter(i => i !== fId)));
-                else { c.push(fId); window.localStorage.setItem('pwa_completed', JSON.stringify(c)); }
+                let c = JSON.parse(localStorage.getItem('pwa_nhi_completed') || '[]');
+                if (c.includes(fId)) window.localStorage.setItem('pwa_nhi_completed', JSON.stringify(c.filter(i => i !== fId)));
+                else { c.push(fId); window.localStorage.setItem('pwa_nhi_completed', JSON.stringify(c)); }
                 updateV4();
             };
             document.addEventListener('DOMContentLoaded', updateV4);
