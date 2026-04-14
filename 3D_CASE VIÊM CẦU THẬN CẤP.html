@@ -37,8 +37,8 @@ body { font-family: 'Inter', sans-serif; overflow-x: hidden; }
 .option-transition { transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); }
 html { scroll-behavior: smooth; }
 
-.bg-animated { background: linear-gradient(270deg, #e0f2fe, #bae6fd, #7dd3fc, #f0f9ff); background-size: 400% 400%; animation: gradientMove 15s ease infinite; }
-.dark .bg-animated { background: linear-gradient(270deg, #04101e, #082f49, #0369a1, #020617); background-size: 400% 400%; animation: gradientMove 15s ease infinite; }
+.bg-animated { background: linear-gradient(270deg, #e0f2fe, #bae6fd, #7dd3fc, #f0f9ff); background-size: 400% 400%;  }
+.dark .bg-animated { background: linear-gradient(270deg, #04101e, #082f49, #0369a1, #020617); background-size: 400% 400%;  }
 @keyframes gradientMove { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
 
 .glass-panel { background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); border: 1px solid rgba(255, 255, 255, 0.6); box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05); }
@@ -66,6 +66,19 @@ html { scroll-behavior: smooth; }
 .animation-delay-4000 { animation-delay: 4s; }
 @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-10px); } 50% { transform: translateX(10px); } 75% { transform: translateX(-10px); } }
 .animate-shake { animation: shake 0.4s ease-in-out; }
+/* Safari Crash Fixes */
+@supports (-webkit-touch-callout: none) {
+  .bg-animated { animation: none !important; }
+  .glass-panel { 
+     -webkit-backdrop-filter: none !important; 
+     backdrop-filter: none !important; 
+     background: rgba(255, 255, 255, 0.98) !important; 
+  }
+  .dark .glass-panel { 
+     background: rgba(15, 23, 42, 0.98) !important; 
+  }
+}
+
 /* iOS PWA Fixes */
 html, body { overscroll-behavior-y: none; -webkit-overflow-scrolling: touch; }
 .overflow-y-auto { -webkit-overflow-scrolling: touch; }
