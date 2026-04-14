@@ -311,6 +311,7 @@ const GoogleSearch = () => {
 function App() {
     const [appState, setAppState] = useState('locked');
     const [passwordInput, setPasswordInput] = useState('');
+      const [showPassword, setShowPassword] = useState(false);
     const [pwError, setPwError] = useState(false);
     const [unlockCountdown, setUnlockCountdown] = useState(3);
     const [questions, setQuestions] = useState([]);
@@ -954,7 +955,7 @@ function App() {
                 )}
 
                 {questions.length > 0 && (
-                    <div className="flex items-center justify-between gap-4 pt-6 pb-20 md:pb-4 relative z-10">
+                    <div className="flex items-center justify-between gap-4 pt-6 pb-4 relative z-10">
                         <button onClick={() => setCurrentIndex(p => Math.max(0, p - 1))} disabled={currentIndex === 0} className="flex-1 glass-panel px-6 py-4 rounded-2xl font-bold text-slate-600 dark:text-slate-300 hover:text-red-600 dark:hover:text-red-400 hover:border-red-300 dark:hover:border-red-600 disabled:opacity-0 transition-all duration-300 flex items-center justify-center gap-2 uppercase tracking-wide text-sm shadow-sm hover:shadow-md hover:-translate-y-1">
                             <i className="fa-solid fa-arrow-left text-base"></i> 
                             <span className="hidden sm:inline">Câu trước</span>
@@ -962,6 +963,15 @@ function App() {
                         <button onClick={() => setCurrentIndex(p => Math.min(questions.length - 1, p + 1))} disabled={currentIndex === questions.length - 1} className="flex-1 btn-gradient text-white px-6 py-4 rounded-2xl font-bold transition-all duration-300 shadow-lg hover:shadow-red-500/40 flex items-center justify-center gap-2 uppercase tracking-wide text-sm hover:-translate-y-1">
                             <span className="hidden sm:inline">Câu tiếp</span> 
                             <i className="fa-solid fa-arrow-right text-base"></i>
+                        </button>
+                    </div>
+                    {/* NỘP BÀI BUTTON ADDED */}
+                    <div className="mt-2 pb-16 flex justify-center w-full animate-in fade-in slide-in-from-bottom-5 duration-700 relative z-10">
+                        <button onClick={() => { if(window.confirm('Bạn có chắc chắn muốn nộp bài?')) { setAppState('result'); setShowMatrix(false); } }} className="w-full sm:w-2/3 md:w-1/2 bg-gradient-to-r from-red-500 to-rose-600 hover:from-red-600 hover:to-rose-700 text-white font-black py-4 px-8 rounded-[1.5rem] shadow-sm transform hover:-translate-y-1 transition-all flex items-center justify-center gap-4 text-lg border border-red-400">
+                            <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center shadow-inner shrink-0">
+                                <i className="fa-solid fa-paper-plane text-xl"></i>
+                            </div>
+                            <span className="uppercase tracking-[0.1em] font-bold drop-shadow-sm">Nộp Bài Ngay</span>
                         </button>
                     </div>
                 )}
@@ -990,14 +1000,19 @@ function App() {
                     <h2 className="text-2xl font-black uppercase text-slate-800 dark:text-slate-100 mb-2 tracking-tighter">Bảo mật truy cập</h2>
                     <p className="text-sm font-semibold text-slate-500 dark:text-slate-400 mb-8 border-b border-slate-200 dark:border-slate-700/50 pb-6 w-full">Vui lòng nhập mật khẩu tài liệu.</p>
                     
-                    <input 
-                        type="password" 
-                        value={passwordInput}
-                        onChange={(e) => { setPasswordInput(e.target.value); setPwError(false); }}
-                        onKeyDown={(e) => { if(e.key === 'Enter') handleUnlock(); }}
-                        className={`w-full px-5 py-4 rounded-xl font-bold bg-white/70 dark:bg-slate-800/70 border-2 outline-none transition-all shadow-sm mb-6 text-center tracking-[0.3em] text-lg ${pwError ? 'border-red-400 text-red-500 bg-red-50' : 'border-slate-200 dark:border-slate-700 focus:border-red-500 text-slate-800 dark:text-slate-100'}`}
-                        placeholder="••••••••••"
-                    />
+                                        <div className="relative w-full mb-6">
+                        <input 
+                            type={showPassword ? "text" : "password"}
+                            value={passwordInput}
+                            onChange={(e) => { setPasswordInput(e.target.value); setPwError(false); }}
+                            onKeyDown={(e) => { if(e.key === 'Enter') handleUnlock(); }}
+                            className={`w-full px-5 py-4 rounded-xl font-bold bg-white/70 dark:bg-slate-800/70 border-2 outline-none transition-all shadow-sm text-center tracking-[0.3em] text-lg ${pwError ? 'border-red-400 text-red-500 bg-red-50' : 'border-slate-200 dark:border-slate-700 focus:border-red-500 text-slate-800 dark:text-slate-100'}`}
+                            placeholder="••••••••••"
+                        />
+                        <button onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-red-500 transition-colors">
+                            <i className={`fa-solid ${showPassword ? 'fa-eye-slash' : 'fa-eye'} text-lg`}></i>
+                        </button>
+                    </div>
                     
                     {pwError && <p className="text-red-500 text-xs font-bold uppercase mb-4 tracking-widest flex items-center justify-center gap-2 animate-in slide-in-from-top-1"><i className="fa-solid fa-triangle-exclamation"></i> Mật khẩu chưa đúng</p>}
                     
@@ -1148,7 +1163,7 @@ function App() {
                 </div>
                 <div className="p-6 border-t border-slate-200/50 dark:border-slate-700/50 bg-white/40 dark:bg-slate-800/40 backdrop-blur-md z-10">
                     {appState === 'quiz' ? (
-                        <button onClick={() => setAppState('result')} className="w-full btn-gradient text-white font-black py-4 rounded-xl shadow-lg flex items-center justify-center gap-2 uppercase tracking-widest hover:shadow-red-500/40 transition-all hover:-translate-y-1"><i className="fa-solid fa-paper-plane text-lg"></i> Nộp bài ngay</button>
+                        <button onClick={() => { if(window.confirm('Bạn có chắc chắn muốn nộp bài?')) { setAppState('result'); setShowMatrix(false); } }} className="w-full btn-gradient text-white font-black py-4 rounded-xl shadow-lg flex items-center justify-center gap-2 uppercase tracking-widest hover:shadow-red-500/40 transition-all hover:-translate-y-1"><i className="fa-solid fa-paper-plane text-lg"></i> Nộp bài ngay</button>
                     ) : (
                         <button onClick={restartQuiz} className="w-full bg-slate-800 dark:bg-slate-700 text-white font-black py-4 rounded-xl flex items-center justify-center gap-2 hover:bg-slate-900 dark:hover:bg-slate-600 transition-colors shadow-md hover:-translate-y-1"><i className="fa-solid fa-rotate-right text-lg"></i> Làm lại từ đầu</button>
                     )}
@@ -1212,5 +1227,70 @@ function App() {
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(<App />);
 </script>
+
+<!-- PWA NAV INJECTED V4 (FLOATING PILL) -->
+<div id="pwa-nav-bar-v4" class="fixed bottom-2 sm:bottom-4 left-1/2 -translate-x-1/2 z-[99999] flex flex-row items-center gap-1 p-1.5 rounded-[2rem] bg-slate-900/85 backdrop-blur-2xl border border-slate-700/50 shadow-lg font-sans select-none transition-all duration-300 hover:bg-slate-900 scale-90 sm:scale-100">
+    <a href="index.html" class="flex flex-row items-center justify-center h-10 px-4 rounded-full text-slate-400 hover:text-white hover:bg-white/10 transition-all gap-2 active:scale-95 cursor-pointer">
+        <i class="fas fa-home text-base"></i>
+        <span class="text-[10px] font-black tracking-widest uppercase mt-0.5">Trang chủ</span>
+    </a>
+    <div class="w-px h-6 bg-slate-700/80 mx-0.5"></div>
+    <button onclick="toggleBookmarkV4('3D_CASE SUY GIÁP TRẠNG BẨM SINH.html')" id="btn-bm-v4-SUYGIÁPTRẠNGBẨMSINH" class="flex flex-row items-center justify-center h-10 px-4 rounded-full text-slate-400 hover:bg-white/10 transition-all gap-2 active:scale-95 group cursor-pointer">
+        <i class="fas fa-heart text-base transition-colors group-hover:text-red-400"></i>
+        <span class="text-[10px] font-black tracking-widest uppercase mt-0.5">Lưu</span>
+    </button>
+    <div class="w-px h-6 bg-slate-700/80 mx-0.5"></div>
+    <button onclick="toggleCompleteV4('3D_CASE SUY GIÁP TRẠNG BẨM SINH.html')" id="btn-cp-v4-SUYGIÁPTRẠNGBẨMSINH" class="flex flex-row items-center justify-center h-10 px-4 rounded-full text-slate-400 hover:bg-white/10 transition-all gap-2 active:scale-95 group cursor-pointer">
+        <i class="fas fa-check-circle text-base transition-colors group-hover:text-emerald-400"></i>
+        <span class="text-[10px] font-black tracking-widest uppercase mt-0.5">Đã Xong</span>
+    </button>
+    
+    <script>
+        (function() {
+            const fileId = '3D_CASE SUY GIÁP TRẠNG BẨM SINH.html';
+            const btnId = 'SUYGIÁPTRẠNGBẨMSINH';
+            function updateV4() {
+                const bookmarks = JSON.parse(localStorage.getItem('pwa_bookmarks') || '[]');
+                const completed = JSON.parse(localStorage.getItem('pwa_completed') || '[]');
+                
+                const heartBtn = document.getElementById('btn-bm-v4-' + btnId);
+                const checkBtn = document.getElementById('btn-cp-v4-' + btnId);
+                
+                if(heartBtn){
+                    if (bookmarks.includes(fileId)) {
+                        heartBtn.querySelector('i').classList.replace('text-slate-400', 'text-red-500');
+                        heartBtn.querySelector('span').classList.replace('text-slate-400', 'text-red-500');
+                    } else {
+                        heartBtn.querySelector('i').classList.replace('text-red-500', 'text-slate-400');
+                        heartBtn.querySelector('span').classList.replace('text-red-500', 'text-slate-400');
+                    }
+                }
+                if(checkBtn){
+                    if (completed.includes(fileId)) {
+                        checkBtn.querySelector('i').classList.replace('text-slate-400', 'text-emerald-500');
+                        checkBtn.querySelector('span').classList.replace('text-slate-400', 'text-emerald-500');
+                    } else {
+                        checkBtn.querySelector('i').classList.replace('text-emerald-500', 'text-slate-400');
+                        checkBtn.querySelector('span').classList.replace('text-emerald-500', 'text-slate-400');
+                    }
+                }
+            }
+            window.toggleBookmarkV4 = function(fId) {
+                let b = JSON.parse(localStorage.getItem('pwa_bookmarks') || '[]');
+                if (b.includes(fId)) window.localStorage.setItem('pwa_bookmarks', JSON.stringify(b.filter(i => i !== fId)));
+                else { b.push(fId); window.localStorage.setItem('pwa_bookmarks', JSON.stringify(b)); }
+                updateV4();
+            };
+            window.toggleCompleteV4 = function(fId) {
+                let c = JSON.parse(localStorage.getItem('pwa_completed') || '[]');
+                if (c.includes(fId)) window.localStorage.setItem('pwa_completed', JSON.stringify(c.filter(i => i !== fId)));
+                else { c.push(fId); window.localStorage.setItem('pwa_completed', JSON.stringify(c)); }
+                updateV4();
+            };
+            document.addEventListener('DOMContentLoaded', updateV4);
+            setTimeout(updateV4, 500);
+        })();
+    </script>
+</div>
 </body>
 </html>
