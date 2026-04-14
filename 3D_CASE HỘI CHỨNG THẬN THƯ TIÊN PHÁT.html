@@ -605,7 +605,7 @@ function App() {
                 <div className="space-y-8 animate-in slide-in-from-bottom-8 duration-500 mt-4 relative z-10">
                     <div className="glass-panel p-8 md:p-12 rounded-[2.5rem] shadow-2xl relative overflow-visible transform-gpu">
                         
-                        <div className="relative bg-[#0b1221] dark:bg-black p-8 rounded-[2rem] mb-12 shadow-2xl overflow-hidden border border-slate-700/50">
+                        <div className="relative bg-[#0b1221] dark:bg-black p-8 rounded-[2rem] mb-12 shadow-2xl overflow-visible border border-slate-700/50">
                             <div className="absolute top-0 right-0 w-64 h-64 bg-red-500/10 rounded-full blur-3xl"></div>
                             <div className="absolute bottom-0 left-0 w-48 h-48 bg-rose-500/10 rounded-full blur-3xl"></div>
                             
@@ -752,7 +752,7 @@ function App() {
                             <button onClick={restartQuiz} className="flex-1 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 border-2 border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 text-lg font-bold py-5 rounded-2xl flex items-center justify-center gap-3 transition-all duration-300 shadow-sm hover:shadow-md uppercase tracking-widest hover:-translate-y-1">
                                 <i className="fa-solid fa-rotate-right text-xl"></i> Làm lại bài
                             </button>
-                            <button onClick={() => { setAppState('review'); setCurrentIndex(0); }} className="flex-1 btn-gradient text-white text-lg font-black py-5 rounded-2xl flex items-center justify-center gap-3 transition-all duration-300 shadow-[0_10px_20px_-10px_rgba(59,130,246,0.6)] hover:shadow-[0_15px_30px_-10px_rgba(59,130,246,0.8)] uppercase tracking-widest hover:-translate-y-1 border border-white/20 relative overflow-hidden group">
+                            <button onClick={() => { setAppState('review'); setCurrentIndex(0); }} className="flex-1 btn-gradient text-white text-lg font-black py-5 rounded-2xl flex items-center justify-center gap-3 transition-all duration-300 shadow-[0_10px_20px_-10px_rgba(59,130,246,0.6)] hover:shadow-[0_15px_30px_-10px_rgba(59,130,246,0.8)] uppercase tracking-widest hover:-translate-y-1 border border-white/20 relative overflow-visible group">
                                 <i className="fa-solid fa-eye text-2xl relative z-10 shrink-0"></i> 
                                 <span className="relative z-10">Xem đáp án chi tiết</span>
                             </button>
@@ -954,7 +954,7 @@ function App() {
 
     if (appState === 'locked') {
         return (
-            <div className="min-h-screen flex flex-col items-center justify-center p-4 relative overflow-hidden bg-transparent z-40 text-center animate-in fade-in duration-500">
+            <div className="min-h-screen flex flex-col items-center justify-center p-4 relative overflow-visible bg-transparent z-40 text-center animate-in fade-in duration-500">
                 <div className={`max-w-md w-full glass-panel rounded-[2.5rem] shadow-2xl p-10 flex flex-col items-center transform transition-all duration-300 ${pwError ? 'animate-shake' : ''}`}>
                     <div className="w-20 h-20 bg-red-100 dark:bg-red-900/50 rounded-full flex items-center justify-center text-red-600 dark:text-red-400 shadow-inner mb-6 relative group">
                         <div className="absolute inset-0 bg-red-400 rounded-full opacity-20 group-hover:scale-150 transition-transform duration-700"></div>
@@ -985,7 +985,7 @@ function App() {
 
     if (appState === 'unlocking') {
         return (
-            <div className="min-h-screen flex flex-col items-center justify-center p-4 relative overflow-hidden bg-transparent z-40 text-center">
+            <div className="min-h-screen flex flex-col items-center justify-center p-4 relative overflow-visible bg-transparent z-40 text-center">
                 <div key={unlockCountdown} className="animate-heartbeat flex flex-col items-center justify-center" style={{ animationDuration: '1s' }}>
                     <div className="text-[180px] md:text-[220px] font-black leading-none bg-clip-text text-transparent bg-gradient-to-b from-red-400 to-rose-500 drop-shadow-[0_0_40px_rgba(220,38,38,0.8)] filter">
                         {unlockCountdown}
@@ -997,7 +997,7 @@ function App() {
 
     if (appState === 'intro') {
         return (
-            <div className="min-h-screen flex flex-col items-center justify-center p-4 relative overflow-hidden bg-transparent">
+            <div className="min-h-screen flex flex-col items-center justify-center p-4 relative overflow-visible bg-transparent">
                 
                 <div className="absolute top-4 right-4 z-50 flex gap-3">
                     <button onClick={() => setIsSoundEnabled(!isSoundEnabled)} className="p-3 glass-panel shadow-lg rounded-full hover:bg-white/90 dark:hover:bg-slate-700/90 transition-all duration-300 text-slate-600 dark:text-slate-300 hover:scale-110">
@@ -1014,7 +1014,7 @@ function App() {
                     </button>
                 </div>
                 <div className="max-w-2xl w-full glass-panel rounded-[2.5rem] shadow-2xl overflow-visible transform-gpu relative z-10 border-t border-l border-white/80 dark:border-slate-700/50 animate-in fade-in slide-in-from-bottom-8 duration-700">
-                    <div className="p-12 pb-8 flex flex-col items-center text-center relative overflow-hidden">
+                    <div className="p-12 pb-8 flex flex-col items-center text-center relative overflow-visible">
                         <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-red-500/10 to-rose-600/10 dark:from-red-900/20 dark:to-rose-900/20 pointer-events-none"></div>
                         <div className="w-24 h-24 bg-white dark:bg-slate-800 rounded-full mb-6 shadow-xl border border-red-100 dark:border-slate-700 flex items-center justify-center relative group">
                             <div className="absolute inset-0 bg-red-400 rounded-full opacity-20 group-hover:scale-150 transition-transform duration-700"></div>
@@ -1128,7 +1128,7 @@ function App() {
                 </div>
             </aside>
 
-            <main className="flex-1 flex flex-col h-screen md:order-1 overflow-hidden relative z-10">
+            <main className="flex-1 flex flex-col h-screen md:order-1 overflow-visible relative z-10">
                 <header className="glass-panel border-b border-white/50 dark:border-slate-700/50 px-4 md:px-6 py-3 md:py-4 flex items-start sm:items-center justify-between sticky top-0 z-30 shadow-sm rounded-none">
                     <div className="flex items-center gap-4">
                         <div className="w-12 h-12 btn-gradient rounded-2xl flex items-center justify-center text-white shadow-lg shadow-red-200/50 dark:shadow-none"><i className="fa-solid fa-baby text-2xl"></i></div>
