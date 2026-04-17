@@ -1663,7 +1663,7 @@
             });
         }
 
-                function openPdfViewer(url) {
+        function openPdfViewer(url, title) {
             try { gtag("event", "view_item", { "item_name": url, "app_name": "Nhi Khoa" }); } catch(e) {}
             const iframe = document.getElementById('pdfIframe');
             const loader = document.getElementById('pdfLoader');
