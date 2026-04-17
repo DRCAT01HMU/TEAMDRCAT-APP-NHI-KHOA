@@ -26,6 +26,37 @@
         @keyframes float-up { 0% { opacity: 0; transform: translateY(20px); } 100% { opacity: 1; transform: translateY(0); } }
         .card-anim { animation: float-up 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; opacity: 0; }
         
+        
+        /* Sleek scrollbar for horizontal lists */
+        .custom-scrollbar::-webkit-scrollbar { height: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(148, 163, 184, 0.4); border-radius: 10px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(148, 163, 184, 0.8); }
+        .dark .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(71, 85, 105, 0.4); }
+        .dark .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(71, 85, 105, 0.8); }
+
+        /* Folder Style Additions */
+        .pt-safe { padding-top: env(safe-area-inset-top); }
+        .folder-mask {
+            -webkit-mask-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 130 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M 0 12 A 12 12 0 0 1 12 0 L 55 0 A 8 8 0 0 1 63 8 L 63 16 A 6 6 0 0 0 69 22 L 118 22 A 12 12 0 0 1 130 34 L 130 168 A 12 12 0 0 1 118 180 L 12 180 A 12 12 0 0 1 0 168 Z' fill='black'/%3E%3C/svg%3E");
+            -webkit-mask-size: 100% 100%;
+            -webkit-mask-repeat: no-repeat;
+            mask-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 130 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M 0 12 A 12 12 0 0 1 12 0 L 55 0 A 8 8 0 0 1 63 8 L 63 16 A 6 6 0 0 0 69 22 L 118 22 A 12 12 0 0 1 130 34 L 130 168 A 12 12 0 0 1 118 180 L 12 180 A 12 12 0 0 1 0 168 Z' fill='black'/%3E%3C/svg%3E");
+            mask-size: 100% 100%;
+            mask-repeat: no-repeat;
+        }
+        .folder-shadow { filter: drop-shadow(0 4px 6px rgba(0,0,0,0.08)); }
+        .dark .folder-shadow { filter: drop-shadow(0 5px 12px rgba(0,0,0,0.4)); }
+        @media (hover: none) {
+            .folder-shadow { filter: none !important; }
+        }
+        .folder-card-wrapper { perspective: 1000px; }
+        .ebook-gradient-1 { background: linear-gradient(135deg, #1e3a8a, #3b82f6); }
+        .ebook-gradient-2 { background: linear-gradient(135deg, #4c1d95, #8b5cf6); }
+        .ebook-gradient-3 { background: linear-gradient(135deg, #064e3b, #10b981); }
+        .ebook-gradient-4 { background: linear-gradient(135deg, #7f1d1d, #ef4444); }
+        .ebook-gradient-5 { background: linear-gradient(135deg, #78350f, #f59e0b); }
+
         /* Glass Tabs */
         .tab-active {
             background: rgba(255,255,255,0.2) !important;
@@ -49,11 +80,253 @@
             .dark [class*="shadow-"] { border: 1px solid rgba(51, 65, 85, 0.5) !important; }
         }
     </style>
+
+    <!-- EBOOK LIBRARY MODAL V3 (Apple Books UI) -->
+    <div id="ebookLibrary" class="fixed inset-0 z-[60] bg-slate-50 dark:bg-slate-950 flex flex-col transition-transform duration-300 ease-out translate-y-full overflow-hidden pointer-events-none transform-gpu will-change-transform">
+        <!-- Dynamic Cinematic Video Background (Lazy Loaded for Speed) -->
+        <div id="libraryBgContainer" class="absolute inset-0 w-full h-full z-0 overflow-hidden pointer-events-none bg-black">
+            <video id="bgVid1" loop muted playsinline preload="none" class="absolute inset-0 w-full h-full object-cover scale-105 transition-opacity duration-[2000ms] ease-in-out opacity-100 transform-gpu will-change-transform will-change-opacity">
+                <source data-src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260331_045634_e1c98c76-1265-4f5c-882a-4276f2080894.mp4" type="video/mp4">
+            </video>
+            <video id="bgVid2" loop muted playsinline preload="none" class="absolute inset-0 w-full h-full object-cover scale-105 transition-opacity duration-[2000ms] ease-in-out opacity-0 transform-gpu will-change-transform will-change-opacity">
+                <source data-src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260331_151551_992053d1-3d3e-4b8c-abac-45f22158f411.mp4" type="video/mp4">
+            </video>
+            <video id="bgVid3" loop muted playsinline preload="none" class="absolute inset-0 w-full h-full object-cover scale-105 transition-opacity duration-[2000ms] ease-in-out opacity-0 transform-gpu will-change-transform will-change-opacity">
+                <source data-src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260331_055729_72d66327-b59e-4ae9-bb70-de6ccb5ecdb0.mp4" type="video/mp4">
+            </video>
+        </div>
+        <!-- Frosted Glass Overlay adapting to Light/Dark mode -->
+        <div class="absolute inset-0 bg-white/20 dark:bg-black/40 z-0 pointer-events-none transition-colors duration-500"></div>
+
+        <!-- Header Controls -->
+        <div class="relative z-10 flex-none bg-white/95 dark:bg-slate-900/95 px-5 py-3.5 flex items-center justify-center border-b border-black/5 dark:border-white/5 pt-safe shadow-sm transform-gpu min-h-[60px]">
+            <h2 class="font-heading font-extrabold text-[15px] sm:text-[19px] uppercase tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-slate-800 via-slate-600 to-slate-800 dark:from-white dark:via-slate-200 dark:to-white text-center leading-tight px-4 sm:px-8 drop-shadow-sm">
+                BỆNH HỌC NHI KHOA <span class="bg-clip-text text-transparent bg-gradient-to-r from-emerald-600 to-teal-500 dark:from-emerald-400 dark:to-teal-300 font-black relative drop-shadow-[0_0_8px_rgba(52,211,153,0.4)]">Y HÀ NỘI</span>
+            </h2>
+            <button onclick="closeEbookLibrary()" class="absolute right-4 w-8 h-8 flex-shrink-0 rounded-full bg-slate-200/80 dark:bg-slate-800/80 flex items-center justify-center text-slate-600 dark:text-slate-300 hover:bg-red-500 hover:text-white transition-colors duration-300 z-10">
+                <i class="fas fa-times text-sm"></i>
+            </button>
+        </div>
+
+        <!-- Search Bar -->
+        <div class="relative z-10 flex-none px-4 py-3 bg-white border-b border-black/5 dark:bg-slate-900 dark:border-white/5 transform-gpu shadow-sm">
+            <div class="relative group">
+                <i class="fas fa-search absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400 group-focus-within:text-emerald-500 transition-colors z-20"></i>
+                <input type="text" id="ebookSearchInput" placeholder="Tìm tên sách..." class="w-full relative z-10 bg-slate-100 dark:bg-slate-800 border border-transparent focus:border-emerald-300/50 dark:focus:border-emerald-500/50 text-slate-800 dark:text-white rounded-xl py-2.5 pl-10 pr-4 focus:outline-none focus:ring-4 focus:ring-emerald-500/10 transition-all font-medium placeholder-slate-400 dark:placeholder-slate-500 shadow-inner transform-gpu">
+            </div>
+        </div>
+
+        <!-- Bookshelf Categories (Horizontal Scroll) -->
+        <div class="relative z-10 flex-1 overflow-y-auto py-6 pb-24 px-4 overflow-hidden scroll-smooth transform-gpu" style="-webkit-overflow-scrolling: touch;">
+            <div class="flex flex-col gap-10 max-w-5xl mx-auto" id="ebookList">
+                <!-- JS Rendered Horizontal Lists -->
+            </div>
+        </div>
+    </div>
+
+    <!-- BOOK DETAIL BOTTOM SHEET MODAL -->
+    <div id="bookDetailSheet" class="fixed inset-0 z-[70] bg-slate-900/40 dark:bg-black/60 hidden flex-col justify-end transition-all duration-300 opacity-0">
+        <div class="flex-1 w-full cursor-pointer" onclick="closeBookDetail()"></div>
+        
+        <div id="bookDetailPanel" class="w-full bg-white dark:bg-slate-900 rounded-t-3xl shadow-[0_-10px_40px_rgba(0,0,0,0.2)] transform translate-y-full transition-transform duration-500 max-h-[85vh] flex flex-col pointer-events-auto border-t border-slate-200 dark:border-slate-800">
+            <div class="w-full flex justify-center pt-3 pb-2 cursor-pointer" onclick="closeBookDetail()">
+                <div class="w-12 h-1.5 bg-slate-300 dark:bg-slate-700 rounded-full"></div>
+            </div>
+            
+            <div class="px-6 pb-8 pt-2 overflow-y-auto custom-scrollbar">
+                <div class="flex gap-5 mb-6">
+                    <div class="relative flex-shrink-0 w-[110px] sm:w-[130px] aspect-[1/1.4] folder-shadow">
+                        <div id="bdCover" class="absolute inset-0 folder-mask bg-white dark:bg-slate-800 flex flex-col">
+                            <div id="bdCoverBg" class="h-[60%] w-full bg-emerald-500 relative flex flex-col p-2 pt-6">
+                                <div id="bdPattern" class="absolute inset-0 opacity-15 pointer-events-none"></div>
+                                <div class="flex-1 flex items-center justify-center z-10">
+                                    <h4 id="bdCoverTitle" class="text-white font-heading font-black text-sm leading-tight drop-shadow-md text-center text-balance px-1">Title</h4>
+                                </div>
+                            </div>
+                            <div class="h-[40%] w-full bg-slate-50 dark:bg-slate-800 p-2.5 flex flex-col justify-end border-t border-black/5 dark:border-white/5">
+                                <span class="text-[9px] text-slate-400 dark:text-slate-500 font-bold mb-0.5 tracking-wider text-emerald-600">NHI KHOA</span>
+                                <div class="flex justify-between items-center text-[11px] text-slate-700 dark:text-slate-200 font-bold">
+                                    <span id="bdCoverChap" class="truncate pr-1">Category</span>
+                                    <i class="fas fa-chevron-down text-[8px] text-slate-400"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="flex-1 flex flex-col justify-center">
+                        <span id="bdCategory" class="text-[10px] font-black text-emerald-600 uppercase tracking-widest bg-emerald-50 dark:bg-emerald-900/30 px-2 py-0.5 rounded w-max mb-2">CATEGORY</span>
+                        <h2 id="bdTitle" class="font-heading font-black text-xl text-slate-800 dark:text-white leading-tight mb-2">Tên sách</h2>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 font-medium mb-3">Tài liệu lưu hành nội bộ<br>Hệ thống: TEAMDRCAT</p>
+                        <div class="flex items-center gap-1 text-amber-500 text-xs">
+                            <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star-half-alt"></i>
+                            <span class="text-slate-400 ml-1">(5.0)</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <button id="btnReadNow" class="w-full relative overflow-hidden group bg-gradient-to-r from-teal-500 to-emerald-600 hover:from-teal-400 hover:to-emerald-500 text-white font-bold text-lg py-4 px-6 rounded-2xl shadow-[0_10px_20px_rgba(16,185,129,0.3)] transition-all flex items-center justify-center gap-3">
+                    <div class="absolute inset-0 w-1/4 bg-white/20 -skew-x-12 -translate-x-full group-hover:animate-[shimmer_1.5s_infinite]"></div>
+                    <div class="absolute inset-0 bg-emerald-400/20 animate-pulse transform-gpu will-change-opacity"></div>
+                    <i class="fas fa-book-reader relative z-10 text-xl group-hover:scale-110 transition-transform"></i> <span class="tracking-wide relative z-10">ĐỌC NGAY</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- EBOOK PDF VIEWER MODAL -->
+    <div id="pdfViewer" class="fixed inset-0 z-[80] bg-black/40 hidden flex-col transition-all duration-300 translate-y-full opacity-0 transform-gpu will-change-transform">
+        <div class="flex-none bg-black/90 p-4 flex items-center justify-between pt-safe border-b border-white/10 shadow-sm z-20">
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-full bg-emerald-500/80 flex items-center justify-center shadow-lg border border-emerald-400/50">
+                    <i class="fas fa-book-medical text-white text-xs"></i>
+                </div>
+                <h3 id="pdfTitle" class="text-white font-bold text-sm tracking-wide line-clamp-1 drop-shadow-md">Giáo trình</h3>
+            </div>
+            <div class="flex items-center gap-2">
+                <a id="pdfExternalLink" href="#" target="_blank" class="w-9 h-9 rounded-full bg-emerald-500/20 hover:bg-emerald-500/40 text-emerald-300 flex items-center justify-center transition-colors border border-emerald-500/30 shadow-sm">
+                    <i class="fas fa-external-link-alt text-xs"></i>
+                </a>
+                <button onclick="closePdfViewer()" class="px-4 py-2 bg-white/20 hover:bg-white/30 text-white rounded-full text-xs font-bold transition-colors cursor-pointer border border-white/10 shadow-sm uppercase tracking-wider">
+                    Xong
+                </button>
+            </div>
+        </div>
+        <div class="flex-1 w-full bg-transparent relative max-w-5xl mx-auto border-x border-white/10 z-10 overflow-hidden">
+            <div id="pdfLoader" class="absolute inset-0 flex flex-col items-center justify-center bg-black/90 text-white z-0 transition-opacity duration-300">
+                <i class="fas fa-circle-notch fa-spin text-4xl text-emerald-500 mb-4 drop-shadow-lg"></i>
+                <p class="font-medium animate-pulse text-slate-300 text-sm mb-2">Đang tải PDF từ máy chủ...</p>
+                <p class="text-[10px] text-slate-400 max-w-xs text-center uppercase tracking-widest leading-relaxed">Bạn cũng có thể mở bên ngoài với nút Góc phải.</p>
+            </div>
+            <iframe id="pdfIframe" src="" class="w-full h-full border-0 relative z-10 bg-white shadow-inner" allowfullscreen></iframe>
+        </div>
+    </div>
+
     <script>
         tailwind.config = { darkMode: 'class', theme: { extend: { colors: { primary: '#0f172a' } } } }
     </script>
 
     <!-- AUTH LOGIC V4 -->
+
+    <!-- EBOOK LIBRARY MODAL V3 (Apple Books UI) -->
+    <div id="ebookLibrary" class="fixed inset-0 z-[60] bg-slate-50 dark:bg-slate-950 flex flex-col transition-transform duration-300 ease-out translate-y-full overflow-hidden pointer-events-none transform-gpu will-change-transform">
+        <!-- Dynamic Cinematic Video Background (Lazy Loaded for Speed) -->
+        <div id="libraryBgContainer" class="absolute inset-0 w-full h-full z-0 overflow-hidden pointer-events-none bg-black">
+            <video id="bgVid1" loop muted playsinline preload="auto" class="absolute inset-0 w-full h-full object-cover scale-105 transition-opacity duration-[2000ms] ease-in-out opacity-100 transform-gpu will-change-transform will-change-opacity">
+                <source src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260331_045634_e1c98c76-1265-4f5c-882a-4276f2080894.mp4" data-src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260331_045634_e1c98c76-1265-4f5c-882a-4276f2080894.mp4" type="video/mp4">
+            </video>
+            <video id="bgVid2" loop muted playsinline preload="none" class="absolute inset-0 w-full h-full object-cover scale-105 transition-opacity duration-[2000ms] ease-in-out opacity-0 transform-gpu will-change-transform will-change-opacity">
+                <source data-src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260331_151551_992053d1-3d3e-4b8c-abac-45f22158f411.mp4" type="video/mp4">
+            </video>
+            <video id="bgVid3" loop muted playsinline preload="none" class="absolute inset-0 w-full h-full object-cover scale-105 transition-opacity duration-[2000ms] ease-in-out opacity-0 transform-gpu will-change-transform will-change-opacity">
+                <source data-src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260331_055729_72d66327-b59e-4ae9-bb70-de6ccb5ecdb0.mp4" type="video/mp4">
+            </video>
+        </div>
+        <!-- Frosted Glass Overlay adapting to Light/Dark mode -->
+        <div class="absolute inset-0 bg-white/20 dark:bg-black/40 z-0 pointer-events-none transition-colors duration-500"></div>
+
+        <!-- Header Controls -->
+        <div class="relative z-10 flex-none bg-white/95 dark:bg-slate-900/95 px-5 py-3.5 flex items-center justify-center border-b border-black/5 dark:border-white/5 pt-safe shadow-sm transform-gpu min-h-[60px]">
+            <h2 class="font-heading font-extrabold text-[15px] sm:text-[19px] uppercase tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-slate-800 via-slate-600 to-slate-800 dark:from-white dark:via-slate-200 dark:to-white text-center leading-tight px-4 sm:px-8 drop-shadow-sm">
+                BỆNH HỌC NHI KHOA <span class="bg-clip-text text-transparent bg-gradient-to-r from-emerald-600 to-teal-500 dark:from-emerald-400 dark:to-teal-300 font-black relative drop-shadow-[0_0_8px_rgba(52,211,153,0.4)]">Y HÀ NỘI</span>
+            </h2>
+            <button onclick="closeEbookLibrary()" class="absolute right-4 w-8 h-8 flex-shrink-0 rounded-full bg-slate-200/80 dark:bg-slate-800/80 flex items-center justify-center text-slate-600 dark:text-slate-300 hover:bg-red-500 hover:text-white transition-colors duration-300 z-10">
+                <i class="fas fa-times text-sm"></i>
+            </button>
+        </div>
+
+        <!-- Search Bar -->
+        <div class="relative z-10 flex-none px-4 py-3 bg-white border-b border-black/5 dark:bg-slate-900 dark:border-white/5 transform-gpu shadow-sm">
+            <div class="relative group">
+                <i class="fas fa-search absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400 group-focus-within:text-emerald-500 transition-colors z-20"></i>
+                <input type="text" id="ebookSearchInput" placeholder="Tìm tên sách..." class="w-full relative z-10 bg-slate-100 dark:bg-slate-800 border border-transparent focus:border-emerald-300/50 dark:focus:border-emerald-500/50 text-slate-800 dark:text-white rounded-xl py-2.5 pl-10 pr-4 focus:outline-none focus:ring-4 focus:ring-emerald-500/10 transition-all font-medium placeholder-slate-400 dark:placeholder-slate-500 shadow-inner transform-gpu">
+            </div>
+        </div>
+
+        <!-- Bookshelf Categories (Horizontal Scroll) -->
+        <div class="relative z-10 flex-1 overflow-y-auto py-6 pb-24 px-4 overflow-hidden scroll-smooth transform-gpu" style="-webkit-overflow-scrolling: touch;">
+            <div class="flex flex-col gap-10 max-w-5xl mx-auto" id="ebookList">
+                <!-- JS Rendered Horizontal Lists -->
+            </div>
+        </div>
+    </div>
+
+    <!-- BOOK DETAIL BOTTOM SHEET MODAL -->
+    <div id="bookDetailSheet" class="fixed inset-0 z-[70] bg-slate-900/40 dark:bg-black/60 hidden flex-col justify-end transition-all duration-300 opacity-0">
+        <div class="flex-1 w-full cursor-pointer" onclick="closeBookDetail()"></div>
+        
+        <div id="bookDetailPanel" class="w-full bg-white dark:bg-slate-900 rounded-t-3xl shadow-[0_-10px_40px_rgba(0,0,0,0.2)] transform translate-y-full transition-transform duration-500 max-h-[85vh] flex flex-col pointer-events-auto border-t border-slate-200 dark:border-slate-800">
+            <div class="w-full flex justify-center pt-3 pb-2 cursor-pointer" onclick="closeBookDetail()">
+                <div class="w-12 h-1.5 bg-slate-300 dark:bg-slate-700 rounded-full"></div>
+            </div>
+            
+            <div class="px-6 pb-8 pt-2 overflow-y-auto custom-scrollbar">
+                <div class="flex gap-5 mb-6">
+                    <div class="relative flex-shrink-0 w-[110px] sm:w-[130px] aspect-[1/1.4] folder-shadow">
+                        <div id="bdCover" class="absolute inset-0 folder-mask bg-white dark:bg-slate-800 flex flex-col">
+                            <div id="bdCoverBg" class="h-[60%] w-full bg-emerald-500 relative flex flex-col p-2 pt-6">
+                                <div id="bdPattern" class="absolute inset-0 opacity-15 pointer-events-none"></div>
+                                <div class="flex-1 flex items-center justify-center z-10">
+                                    <h4 id="bdCoverTitle" class="text-white font-heading font-black text-sm leading-tight drop-shadow-md text-center text-balance px-1">Title</h4>
+                                </div>
+                            </div>
+                            <div class="h-[40%] w-full bg-slate-50 dark:bg-slate-800 p-2.5 flex flex-col justify-end border-t border-black/5 dark:border-white/5">
+                                <span class="text-[9px] text-slate-400 dark:text-slate-500 font-bold mb-0.5 tracking-wider text-emerald-600">NHI KHOA</span>
+                                <div class="flex justify-between items-center text-[11px] text-slate-700 dark:text-slate-200 font-bold">
+                                    <span id="bdCoverChap" class="truncate pr-1">Category</span>
+                                    <i class="fas fa-chevron-down text-[8px] text-slate-400"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="flex-1 flex flex-col justify-center">
+                        <span id="bdCategory" class="text-[10px] font-black text-emerald-600 uppercase tracking-widest bg-emerald-50 dark:bg-emerald-900/30 px-2 py-0.5 rounded w-max mb-2">CATEGORY</span>
+                        <h2 id="bdTitle" class="font-heading font-black text-xl text-slate-800 dark:text-white leading-tight mb-2">Tên sách</h2>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 font-medium mb-3">Tài liệu lưu hành nội bộ<br>Hệ thống: TEAMDRCAT</p>
+                        <div class="flex items-center gap-1 text-amber-500 text-xs">
+                            <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star-half-alt"></i>
+                            <span class="text-slate-400 ml-1">(5.0)</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <button id="btnReadNow" class="w-full relative overflow-hidden group bg-gradient-to-r from-teal-500 to-emerald-600 hover:from-teal-400 hover:to-emerald-500 text-white font-bold text-lg py-4 px-6 rounded-2xl shadow-[0_10px_20px_rgba(16,185,129,0.3)] transition-all flex items-center justify-center gap-3">
+                    <div class="absolute inset-0 w-1/4 bg-white/20 -skew-x-12 -translate-x-full group-hover:animate-[shimmer_1.5s_infinite]"></div>
+                    <div class="absolute inset-0 bg-emerald-400/20 animate-pulse transform-gpu will-change-opacity"></div>
+                    <i class="fas fa-book-reader relative z-10 text-xl group-hover:scale-110 transition-transform"></i> <span class="tracking-wide relative z-10">ĐỌC NGAY</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- EBOOK PDF VIEWER MODAL -->
+    <div id="pdfViewer" class="fixed inset-0 z-[80] bg-black/40 hidden flex-col transition-all duration-300 translate-y-full opacity-0 transform-gpu will-change-transform">
+        <div class="flex-none bg-black/90 p-4 flex items-center justify-between pt-safe border-b border-white/10 shadow-sm z-20">
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-full bg-emerald-500/80 flex items-center justify-center shadow-lg border border-emerald-400/50">
+                    <i class="fas fa-book-medical text-white text-xs"></i>
+                </div>
+                <h3 id="pdfTitle" class="text-white font-bold text-sm tracking-wide line-clamp-1 drop-shadow-md">Giáo trình</h3>
+            </div>
+            <div class="flex items-center gap-2">
+                <a id="pdfExternalLink" href="#" target="_blank" class="w-9 h-9 rounded-full bg-emerald-500/20 hover:bg-emerald-500/40 text-emerald-300 flex items-center justify-center transition-colors border border-emerald-500/30 shadow-sm">
+                    <i class="fas fa-external-link-alt text-xs"></i>
+                </a>
+                <button onclick="closePdfViewer()" class="px-4 py-2 bg-white/20 hover:bg-white/30 text-white rounded-full text-xs font-bold transition-colors cursor-pointer border border-white/10 shadow-sm uppercase tracking-wider">
+                    Xong
+                </button>
+            </div>
+        </div>
+        <div class="flex-1 w-full bg-transparent relative max-w-5xl mx-auto border-x border-white/10 z-10 overflow-hidden">
+            <div id="pdfLoader" class="absolute inset-0 flex flex-col items-center justify-center bg-black/90 text-white z-0 transition-opacity duration-300">
+                <i class="fas fa-circle-notch fa-spin text-4xl text-emerald-500 mb-4 drop-shadow-lg"></i>
+                <p class="font-medium animate-pulse text-slate-300 text-sm mb-2">Đang tải PDF từ máy chủ...</p>
+                <p class="text-[10px] text-slate-400 max-w-xs text-center uppercase tracking-widest leading-relaxed">Bạn cũng có thể mở bên ngoài với nút Góc phải.</p>
+            </div>
+            <iframe id="pdfIframe" src="" class="w-full h-full border-0 relative z-10 bg-white shadow-inner" allowfullscreen></iframe>
+        </div>
+    </div>
+
     <script>
         const AUTH_API = "https://script.google.com/macros/s/AKfycbzUNA96SRsLQv7hlu83GAx6L85kEia8S52KY7nCRfWLlpJslMAT_Z-n9PMOoG_RNW6Q/exec";
         let deviceId = localStorage.getItem('TDC_DEVICE_ID_NHI');
@@ -137,6 +410,127 @@
 
     <!-- Google tag (gtag.js) Analytics -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-C6RSXNG6J3"></script>
+
+    <!-- EBOOK LIBRARY MODAL V3 (Apple Books UI) -->
+    <div id="ebookLibrary" class="fixed inset-0 z-[60] bg-slate-50 dark:bg-slate-950 flex flex-col transition-transform duration-300 ease-out translate-y-full overflow-hidden pointer-events-none transform-gpu will-change-transform">
+        <!-- Dynamic Cinematic Video Background (Lazy Loaded for Speed) -->
+        <div id="libraryBgContainer" class="absolute inset-0 w-full h-full z-0 overflow-hidden pointer-events-none bg-black">
+            <video id="bgVid1" loop muted playsinline preload="none" class="absolute inset-0 w-full h-full object-cover scale-105 transition-opacity duration-[2000ms] ease-in-out opacity-100 transform-gpu will-change-transform will-change-opacity">
+                <source data-src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260331_045634_e1c98c76-1265-4f5c-882a-4276f2080894.mp4" type="video/mp4">
+            </video>
+            <video id="bgVid2" loop muted playsinline preload="none" class="absolute inset-0 w-full h-full object-cover scale-105 transition-opacity duration-[2000ms] ease-in-out opacity-0 transform-gpu will-change-transform will-change-opacity">
+                <source data-src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260331_151551_992053d1-3d3e-4b8c-abac-45f22158f411.mp4" type="video/mp4">
+            </video>
+            <video id="bgVid3" loop muted playsinline preload="none" class="absolute inset-0 w-full h-full object-cover scale-105 transition-opacity duration-[2000ms] ease-in-out opacity-0 transform-gpu will-change-transform will-change-opacity">
+                <source data-src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260331_055729_72d66327-b59e-4ae9-bb70-de6ccb5ecdb0.mp4" type="video/mp4">
+            </video>
+        </div>
+        <!-- Frosted Glass Overlay adapting to Light/Dark mode -->
+        <div class="absolute inset-0 bg-white/20 dark:bg-black/40 z-0 pointer-events-none transition-colors duration-500"></div>
+
+        <!-- Header Controls -->
+        <div class="relative z-10 flex-none bg-white/95 dark:bg-slate-900/95 px-5 py-3.5 flex items-center justify-center border-b border-black/5 dark:border-white/5 pt-safe shadow-sm transform-gpu min-h-[60px]">
+            <h2 class="font-heading font-extrabold text-[15px] sm:text-[19px] uppercase tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-slate-800 via-slate-600 to-slate-800 dark:from-white dark:via-slate-200 dark:to-white text-center leading-tight px-4 sm:px-8 drop-shadow-sm">
+                BỆNH HỌC NHI KHOA <span class="bg-clip-text text-transparent bg-gradient-to-r from-emerald-600 to-teal-500 dark:from-emerald-400 dark:to-teal-300 font-black relative drop-shadow-[0_0_8px_rgba(52,211,153,0.4)]">Y HÀ NỘI</span>
+            </h2>
+            <button onclick="closeEbookLibrary()" class="absolute right-4 w-8 h-8 flex-shrink-0 rounded-full bg-slate-200/80 dark:bg-slate-800/80 flex items-center justify-center text-slate-600 dark:text-slate-300 hover:bg-red-500 hover:text-white transition-colors duration-300 z-10">
+                <i class="fas fa-times text-sm"></i>
+            </button>
+        </div>
+
+        <!-- Search Bar -->
+        <div class="relative z-10 flex-none px-4 py-3 bg-white border-b border-black/5 dark:bg-slate-900 dark:border-white/5 transform-gpu shadow-sm">
+            <div class="relative group">
+                <i class="fas fa-search absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400 group-focus-within:text-emerald-500 transition-colors z-20"></i>
+                <input type="text" id="ebookSearchInput" placeholder="Tìm tên sách..." class="w-full relative z-10 bg-slate-100 dark:bg-slate-800 border border-transparent focus:border-emerald-300/50 dark:focus:border-emerald-500/50 text-slate-800 dark:text-white rounded-xl py-2.5 pl-10 pr-4 focus:outline-none focus:ring-4 focus:ring-emerald-500/10 transition-all font-medium placeholder-slate-400 dark:placeholder-slate-500 shadow-inner transform-gpu">
+            </div>
+        </div>
+
+        <!-- Bookshelf Categories (Horizontal Scroll) -->
+        <div class="relative z-10 flex-1 overflow-y-auto py-6 pb-24 px-4 overflow-hidden scroll-smooth transform-gpu" style="-webkit-overflow-scrolling: touch;">
+            <div class="flex flex-col gap-10 max-w-5xl mx-auto" id="ebookList">
+                <!-- JS Rendered Horizontal Lists -->
+            </div>
+        </div>
+    </div>
+
+    <!-- BOOK DETAIL BOTTOM SHEET MODAL -->
+    <div id="bookDetailSheet" class="fixed inset-0 z-[70] bg-slate-900/40 dark:bg-black/60 hidden flex-col justify-end transition-all duration-300 opacity-0">
+        <div class="flex-1 w-full cursor-pointer" onclick="closeBookDetail()"></div>
+        
+        <div id="bookDetailPanel" class="w-full bg-white dark:bg-slate-900 rounded-t-3xl shadow-[0_-10px_40px_rgba(0,0,0,0.2)] transform translate-y-full transition-transform duration-500 max-h-[85vh] flex flex-col pointer-events-auto border-t border-slate-200 dark:border-slate-800">
+            <div class="w-full flex justify-center pt-3 pb-2 cursor-pointer" onclick="closeBookDetail()">
+                <div class="w-12 h-1.5 bg-slate-300 dark:bg-slate-700 rounded-full"></div>
+            </div>
+            
+            <div class="px-6 pb-8 pt-2 overflow-y-auto custom-scrollbar">
+                <div class="flex gap-5 mb-6">
+                    <div class="relative flex-shrink-0 w-[110px] sm:w-[130px] aspect-[1/1.4] folder-shadow">
+                        <div id="bdCover" class="absolute inset-0 folder-mask bg-white dark:bg-slate-800 flex flex-col">
+                            <div id="bdCoverBg" class="h-[60%] w-full bg-emerald-500 relative flex flex-col p-2 pt-6">
+                                <div id="bdPattern" class="absolute inset-0 opacity-15 pointer-events-none"></div>
+                                <div class="flex-1 flex items-center justify-center z-10">
+                                    <h4 id="bdCoverTitle" class="text-white font-heading font-black text-sm leading-tight drop-shadow-md text-center text-balance px-1">Title</h4>
+                                </div>
+                            </div>
+                            <div class="h-[40%] w-full bg-slate-50 dark:bg-slate-800 p-2.5 flex flex-col justify-end border-t border-black/5 dark:border-white/5">
+                                <span class="text-[9px] text-slate-400 dark:text-slate-500 font-bold mb-0.5 tracking-wider text-emerald-600">NHI KHOA</span>
+                                <div class="flex justify-between items-center text-[11px] text-slate-700 dark:text-slate-200 font-bold">
+                                    <span id="bdCoverChap" class="truncate pr-1">Category</span>
+                                    <i class="fas fa-chevron-down text-[8px] text-slate-400"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="flex-1 flex flex-col justify-center">
+                        <span id="bdCategory" class="text-[10px] font-black text-emerald-600 uppercase tracking-widest bg-emerald-50 dark:bg-emerald-900/30 px-2 py-0.5 rounded w-max mb-2">CATEGORY</span>
+                        <h2 id="bdTitle" class="font-heading font-black text-xl text-slate-800 dark:text-white leading-tight mb-2">Tên sách</h2>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 font-medium mb-3">Tài liệu lưu hành nội bộ<br>Hệ thống: TEAMDRCAT</p>
+                        <div class="flex items-center gap-1 text-amber-500 text-xs">
+                            <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star-half-alt"></i>
+                            <span class="text-slate-400 ml-1">(5.0)</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <button id="btnReadNow" class="w-full relative overflow-hidden group bg-gradient-to-r from-teal-500 to-emerald-600 hover:from-teal-400 hover:to-emerald-500 text-white font-bold text-lg py-4 px-6 rounded-2xl shadow-[0_10px_20px_rgba(16,185,129,0.3)] transition-all flex items-center justify-center gap-3">
+                    <div class="absolute inset-0 w-1/4 bg-white/20 -skew-x-12 -translate-x-full group-hover:animate-[shimmer_1.5s_infinite]"></div>
+                    <div class="absolute inset-0 bg-emerald-400/20 animate-pulse transform-gpu will-change-opacity"></div>
+                    <i class="fas fa-book-reader relative z-10 text-xl group-hover:scale-110 transition-transform"></i> <span class="tracking-wide relative z-10">ĐỌC NGAY</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- EBOOK PDF VIEWER MODAL -->
+    <div id="pdfViewer" class="fixed inset-0 z-[80] bg-black/40 hidden flex-col transition-all duration-300 translate-y-full opacity-0 transform-gpu will-change-transform">
+        <div class="flex-none bg-black/90 p-4 flex items-center justify-between pt-safe border-b border-white/10 shadow-sm z-20">
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-full bg-emerald-500/80 flex items-center justify-center shadow-lg border border-emerald-400/50">
+                    <i class="fas fa-book-medical text-white text-xs"></i>
+                </div>
+                <h3 id="pdfTitle" class="text-white font-bold text-sm tracking-wide line-clamp-1 drop-shadow-md">Giáo trình</h3>
+            </div>
+            <div class="flex items-center gap-2">
+                <a id="pdfExternalLink" href="#" target="_blank" class="w-9 h-9 rounded-full bg-emerald-500/20 hover:bg-emerald-500/40 text-emerald-300 flex items-center justify-center transition-colors border border-emerald-500/30 shadow-sm">
+                    <i class="fas fa-external-link-alt text-xs"></i>
+                </a>
+                <button onclick="closePdfViewer()" class="px-4 py-2 bg-white/20 hover:bg-white/30 text-white rounded-full text-xs font-bold transition-colors cursor-pointer border border-white/10 shadow-sm uppercase tracking-wider">
+                    Xong
+                </button>
+            </div>
+        </div>
+        <div class="flex-1 w-full bg-transparent relative max-w-5xl mx-auto border-x border-white/10 z-10 overflow-hidden">
+            <div id="pdfLoader" class="absolute inset-0 flex flex-col items-center justify-center bg-black/90 text-white z-0 transition-opacity duration-300">
+                <i class="fas fa-circle-notch fa-spin text-4xl text-emerald-500 mb-4 drop-shadow-lg"></i>
+                <p class="font-medium animate-pulse text-slate-300 text-sm mb-2">Đang tải PDF từ máy chủ...</p>
+                <p class="text-[10px] text-slate-400 max-w-xs text-center uppercase tracking-widest leading-relaxed">Bạn cũng có thể mở bên ngoài với nút Góc phải.</p>
+            </div>
+            <iframe id="pdfIframe" src="" class="w-full h-full border-0 relative z-10 bg-white shadow-inner" allowfullscreen></iframe>
+        </div>
+    </div>
+
     <script>
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
@@ -155,13 +549,13 @@
                 <i class="fas fa-baby text-5xl text-emerald-100 opacity-90"></i>
                 <div class="absolute top-0 w-full h-1 bg-white shadow-[0_0_15px_white] animate-[radar_2s_linear_infinite]"></div>
             </div>
-            <div class="absolute -top-2 -right-2 w-10 h-10 bg-slate-800/80 backdrop-blur-md rounded-full border border-slate-600 flex items-center justify-center shadow-[0_0_15px_rgba(16,185,129,0.5)] z-20">
+            <div class="absolute -top-2 -right-2 w-10 h-10 bg-slate-800/80 backdrop-blur-md transform-gpu rounded-full border border-slate-600 flex items-center justify-center shadow-[0_0_15px_rgba(16,185,129,0.5)] z-20">
                 <i class="fas fa-stethoscope text-emerald-400 text-sm"></i>
             </div>
         </div>
         
         <h2 class="font-heading text-transparent bg-clip-text bg-gradient-to-r from-teal-200 via-emerald-400 to-green-300 font-extrabold text-3xl mb-2 tracking-[0.05em]" style="text-shadow: 0 0 30px rgba(16,185,129,0.4);">TÀI LIỆU NỘI BỘ</h2>
-        <p id="lock-status" class="text-slate-300 text-[13px] mb-8 max-w-xs font-medium bg-slate-800/40 backdrop-blur-xl py-2 px-6 rounded-full border border-slate-700/50 shadow-inner">Initializing protocols...</p>
+        <p id="lock-status" class="text-slate-300 text-[13px] mb-8 max-w-xs font-medium bg-slate-800/40 backdrop-blur-xl transform-gpu py-2 px-6 rounded-full border border-slate-700/50 shadow-inner">Initializing protocols...</p>
         
         <div id="lock-container" class="hidden flex flex-col items-center w-full max-w-sm">
             <div class="relative w-full mb-6 group cursor-pointer" onclick="copyDeviceId()">
@@ -170,7 +564,7 @@
                 <div class="absolute -top-3 left-1/2 -translate-x-1/2 bg-emerald-900 text-emerald-200 text-[10px] font-bold px-3 py-1 rounded-full z-20 border border-emerald-700 shadow-lg tracking-widest uppercase">DEVICE ID</div>
             </div>
             
-            <button id="copyBtn" onclick="copyDeviceId()" class="relative w-full overflow-hidden group bg-slate-800/80 backdrop-blur-md hover:bg-slate-700/90 text-white font-bold py-4 px-4 rounded-xl shadow-[0_10px_20px_rgba(0,0,0,0.3)] border border-slate-600 transition-all mb-4 flex items-center justify-center gap-3">
+            <button id="copyBtn" onclick="copyDeviceId()" class="relative w-full overflow-hidden group bg-slate-800/80 backdrop-blur-md transform-gpu hover:bg-slate-700/90 text-white font-bold py-4 px-4 rounded-xl shadow-[0_10px_20px_rgba(0,0,0,0.3)] border border-slate-600 transition-all mb-4 flex items-center justify-center gap-3">
                 <div class="absolute inset-0 w-1/4 bg-white/5 -skew-x-12 -translate-x-full group-hover:animate-[shimmer_1.5s_infinite]"></div>
                 <i class="fas fa-paste text-xl text-emerald-400"></i> <span class="tracking-wide">SAO CHÉP MÃ THIẾT BỊ</span>
             </button>
@@ -207,32 +601,89 @@
     </header>
 
     <main class="relative z-10 pb-24">
-        <!-- Hero Mesh Gradient Section -->
-        <div class="relative px-6 pt-8 pb-14 bg-slate-900 text-white rounded-b-[2.5rem] shadow-2xl mb-8 mx-2 mt-2 border border-slate-800" style="background: radial-gradient(circle at 0% 0%, #10b981 0%, transparent 60%), radial-gradient(circle at 100% 100%, #3b82f6 0%, transparent 60%), #0f172a;">
-            <div class="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] mix-blend-overlay"></div>
+        <!-- Promotional Banner Marquee -->
+        <div class="mx-3 mb-4 mt-2 overflow-hidden rounded-2xl border border-emerald-500/30 bg-gradient-to-r from-slate-900 via-emerald-900/20 to-slate-900 shadow-[0_0_15px_rgba(168,85,247,0.15)] relative">
+            <div class="flex items-center px-4 py-3">
+                <i class="fas fa-gift text-teal-400 mr-3 animate-pulse transform-gpu will-change-opacity"></i>
+                <div class="w-full relative h-[22px] overflow-hidden flex items-center group cursor-pointer" title="Di chuột để đọc">
+                    <style>
+                        .marquee-wrapper {
+                            display: flex;
+                            white-space: nowrap;
+                            animation: scroll-seamless 45s linear infinite; will-change: transform; transform: translateZ(0);
+                        }
+                        @keyframes scroll-seamless {
+                            0% { transform: translateX(0); }
+                            100% { transform: translateX(-50%); } 
+                        }
+                        /* Pause animation when user hovers or taps */
+                        .group:hover .marquee-wrapper {
+                            animation-play-state: paused;
+                        }
+                    </style>
+                    <div class="marquee-wrapper">
+                        <!-- Block 1 (Visible Instantly) -->
+                        <div class="flex-shrink-0 pr-16 flex items-center text-slate-300 text-[13.5px] font-medium tracking-wide">
+                            <span class="text-white font-extrabold tracking-widest mr-1">🌟 THƯ VIỆN YBOOK CẬP NHẬT MỚI:</span> 
+                            <span class="text-amber-300 font-bold mr-2">Ưu đãi từ 17/04 - 19/04.</span>
+                            <span class="text-emerald-400 font-black">GIẢM 10%</span> <span class="opacity-90">cho bạn mới</span>, 
+                            <span class="text-teal-400 font-black">GIẢM 20%</span> <span class="opacity-90">cho bạn đã đăng ký Test VIP 4 môn trở xuống</span>, 
+                            <span class="text-amber-400 font-black drop-shadow-md">GIẢM 30%</span> <span class="opacity-90">cho bạn đã đăng ký Test VIP 5 môn trở lên</span>. 
+                            <span class="text-white font-bold ml-1">Ưu đãi có hạn, nhanh tay nhé ^^ 🔥</span>
+                        </div>
+                        <!-- Block 2 (Seamless Infinite Loop) -->
+                        <div class="flex-shrink-0 pr-16 flex items-center text-slate-300 text-[13.5px] font-medium tracking-wide">
+                            <span class="text-white font-extrabold tracking-widest mr-1">🌟 THƯ VIỆN YBOOK CẬP NHẬT MỚI:</span> 
+                            <span class="text-amber-300 font-bold mr-2">Ưu đãi từ 17/04 - 19/04.</span>
+                            <span class="text-emerald-400 font-black">GIẢM 10%</span> <span class="opacity-90">cho bạn mới</span>, 
+                            <span class="text-teal-400 font-black">GIẢM 20%</span> <span class="opacity-90">cho bạn đã đăng ký Test VIP 4 môn trở xuống</span>, 
+                            <span class="text-amber-400 font-black drop-shadow-md">GIẢM 30%</span> <span class="opacity-90">cho bạn đã đăng ký Test VIP 5 môn trở lên</span>. 
+                            <span class="text-white font-bold ml-1">Ưu đãi có hạn, nhanh tay nhé ^^ 🔥</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Hero Blue/Purple Section -->
+        <div class="relative px-6 pt-8 pb-5 bg-gradient-to-br from-[#064e3b] via-[#0f172a] to-[#047857] text-white rounded-[2rem] shadow-2xl mb-8 mx-2 mt-2 border border-emerald-500/20 overflow-hidden">
+            <div class="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/hexagon.png')] mix-blend-overlay"></div>
             <!-- Animated glowing orbs -->
-            <div class="absolute top-10 right-10 w-32 h-32 bg-emerald-500/20 rounded-full blur-3xl animate-pulse"></div>
-            <div class="absolute bottom-0 left-10 w-40 h-40 bg-teal-500/20 rounded-full blur-3xl animate-pulse" style="animation-delay: 2s;"></div>
+            <div class="absolute top-0 right-0 w-64 h-64 bg-emerald-500/20 rounded-full blur-[80px] animate-pulse transform-gpu will-change-opacity"></div>
+            <div class="absolute bottom-0 left-0 w-64 h-64 bg-teal-500/20 rounded-full blur-[80px] animate-pulse transform-gpu will-change-opacity" style="animation-delay: 2s;"></div>
             
             <div class="relative z-10">
-                
-                <h2 class="font-heading text-4xl font-extrabold mb-6 leading-tight tracking-tight">CASE LÂM SÀNG<br><span class="text-transparent bg-clip-text bg-gradient-to-r from-emerald-300 to-teal-300">NHI KHOA</span></h2>
+                <h2 class="font-heading text-[2.5rem] sm:text-[42px] font-extrabold mb-8 leading-[1.1] tracking-tight">CASE LÂM SÀNG<br><span class="text-transparent bg-clip-text bg-gradient-to-r from-emerald-300 to-teal-300 filter drop-shadow">NHI KHOA</span></h2>
                 
                 <!-- Search bar Glass -->
-                <div class="relative max-w-md group">
-                    <div class="absolute inset-0 bg-white/20 rounded-2xl blur-lg group-hover:bg-white/30 transition-all duration-500 opacity-50"></div>
-                    <i class="fas fa-search absolute left-5 top-1/2 -translate-y-1/2 text-white/60 text-lg z-20"></i>
+                <div class="relative max-w-md group mb-6">
+                    <div class="absolute inset-0 bg-white/10 rounded-2xl blur-lg group-hover:bg-white/20 transition-all duration-500 opacity-50"></div>
+                    <i class="fas fa-search absolute left-5 top-1/2 -translate-y-1/2 text-white/50 text-lg z-20"></i>
                     <input type="text" id="searchInput" placeholder="Tìm kiếm từ khóa..." 
-                           class="w-full bg-white/10 backdrop-blur-xl text-white placeholder-white/50 border border-white/20 rounded-2xl py-4 pl-14 pr-4 focus:outline-none focus:ring-2 focus:ring-emerald-300/50 transition-all font-medium shadow-[0_8px_32px_rgba(0,0,0,0.1)] relative z-10">
+                           class="w-full bg-white/10 backdrop-blur-xl transform-gpu text-white placeholder-white/40 border border-white/10 rounded-2xl py-4 pl-14 pr-4 focus:outline-none focus:ring-2 focus:ring-emerald-400/50 transition-all font-medium shadow-inner relative z-10">
+                </div>
+
+                <!-- Library Action Button -->
+                <button onclick="openEbookLibrary()" class="flex items-center justify-between w-full max-w-md bg-white/10 hover:bg-white/20 border border-white/20 rounded-2xl p-4 transition-all duration-300 shadow-xl group relative z-10 cursor-pointer transform-gpu active:scale-[0.98] mt-2 mb-2">
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center shadow-inner border border-white/10">
+                            <i class="fas fa-book-open text-white"></i>
+                        </div>
+                        <div class="text-left">
+                            <h3 class="text-white font-bold text-[13.5px] sm:text-[15px] tracking-wide">BỆNH HỌC NHI KHOA <span class="bg-clip-text text-transparent bg-gradient-to-r from-amber-300 to-amber-500 font-extrabold filter drop-shadow">Y HÀ NỘI</span></h3>
+                        </div>
+                    </div>
+                    <i class="fas fa-chevron-right text-white/50 group-hover:text-white group-hover:translate-x-1 transition-all"></i>
+                </button>
+
+                <!-- Category Pills (Moved UP) -->
+                <div class="mt-4 -ml-2 -mr-2 relative z-20">
+                    <div class="overflow-x-auto no-scrollbar transform-gpu will-change-scroll whitespace-nowrap flex gap-2 pb-2 pt-2 px-3" id="categoryTabs">
+                        <!-- JS renders categories here -->
+                    </div>
                 </div>
             </div>
             
-            <!-- Category Pills Glass -->
-            <div class="absolute bottom-0 left-0 w-full px-5 translate-y-1/2 z-20">
-                <div class="overflow-x-auto no-scrollbar whitespace-nowrap flex gap-2 pb-4 pt-2 px-1" id="categoryTabs">
-                    <!-- JS -->
-                </div>
-            </div>
         </div>
         
         <!-- Stats Mini Header -->
@@ -256,6 +707,127 @@
             <p class="font-medium text-slate-500">Chưa tìm thấy dữ liệu phù hợp.</p>
         </div>
     </main>
+
+
+    <!-- EBOOK LIBRARY MODAL V3 (Apple Books UI) -->
+    <div id="ebookLibrary" class="fixed inset-0 z-[60] bg-slate-50 dark:bg-slate-950 flex flex-col transition-transform duration-300 ease-out translate-y-full overflow-hidden pointer-events-none transform-gpu will-change-transform">
+        <!-- Dynamic Cinematic Video Background (Lazy Loaded for Speed) -->
+        <div id="libraryBgContainer" class="absolute inset-0 w-full h-full z-0 overflow-hidden pointer-events-none bg-black">
+            <video id="bgVid1" loop muted playsinline preload="none" class="absolute inset-0 w-full h-full object-cover scale-105 transition-opacity duration-[2000ms] ease-in-out opacity-100 transform-gpu will-change-transform will-change-opacity">
+                <source data-src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260331_045634_e1c98c76-1265-4f5c-882a-4276f2080894.mp4" type="video/mp4">
+            </video>
+            <video id="bgVid2" loop muted playsinline preload="none" class="absolute inset-0 w-full h-full object-cover scale-105 transition-opacity duration-[2000ms] ease-in-out opacity-0 transform-gpu will-change-transform will-change-opacity">
+                <source data-src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260331_151551_992053d1-3d3e-4b8c-abac-45f22158f411.mp4" type="video/mp4">
+            </video>
+            <video id="bgVid3" loop muted playsinline preload="none" class="absolute inset-0 w-full h-full object-cover scale-105 transition-opacity duration-[2000ms] ease-in-out opacity-0 transform-gpu will-change-transform will-change-opacity">
+                <source data-src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260331_055729_72d66327-b59e-4ae9-bb70-de6ccb5ecdb0.mp4" type="video/mp4">
+            </video>
+        </div>
+        <!-- Frosted Glass Overlay adapting to Light/Dark mode -->
+        <div class="absolute inset-0 bg-white/20 dark:bg-black/40 z-0 pointer-events-none transition-colors duration-500"></div>
+
+        <!-- Header Controls -->
+        <div class="relative z-10 flex-none bg-white/95 dark:bg-slate-900/95 px-5 py-3.5 flex items-center justify-center border-b border-black/5 dark:border-white/5 pt-safe shadow-sm transform-gpu min-h-[60px]">
+            <h2 class="font-heading font-extrabold text-[15px] sm:text-[19px] uppercase tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-slate-800 via-slate-600 to-slate-800 dark:from-white dark:via-slate-200 dark:to-white text-center leading-tight px-4 sm:px-8 drop-shadow-sm">
+                BỆNH HỌC NHI KHOA <span class="bg-clip-text text-transparent bg-gradient-to-r from-emerald-600 to-teal-500 dark:from-emerald-400 dark:to-teal-300 font-black relative drop-shadow-[0_0_8px_rgba(52,211,153,0.4)]">Y HÀ NỘI</span>
+            </h2>
+            <button onclick="closeEbookLibrary()" class="absolute right-4 w-8 h-8 flex-shrink-0 rounded-full bg-slate-200/80 dark:bg-slate-800/80 flex items-center justify-center text-slate-600 dark:text-slate-300 hover:bg-red-500 hover:text-white transition-colors duration-300 z-10">
+                <i class="fas fa-times text-sm"></i>
+            </button>
+        </div>
+
+        <!-- Search Bar -->
+        <div class="relative z-10 flex-none px-4 py-3 bg-white border-b border-black/5 dark:bg-slate-900 dark:border-white/5 transform-gpu shadow-sm">
+            <div class="relative group">
+                <i class="fas fa-search absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400 group-focus-within:text-emerald-500 transition-colors z-20"></i>
+                <input type="text" id="ebookSearchInput" placeholder="Tìm tên sách..." class="w-full relative z-10 bg-slate-100 dark:bg-slate-800 border border-transparent focus:border-emerald-300/50 dark:focus:border-emerald-500/50 text-slate-800 dark:text-white rounded-xl py-2.5 pl-10 pr-4 focus:outline-none focus:ring-4 focus:ring-emerald-500/10 transition-all font-medium placeholder-slate-400 dark:placeholder-slate-500 shadow-inner transform-gpu">
+            </div>
+        </div>
+
+        <!-- Bookshelf Categories (Horizontal Scroll) -->
+        <div class="relative z-10 flex-1 overflow-y-auto py-6 pb-24 px-4 overflow-hidden scroll-smooth transform-gpu" style="-webkit-overflow-scrolling: touch;">
+            <div class="flex flex-col gap-10 max-w-5xl mx-auto" id="ebookList">
+                <!-- JS Rendered Horizontal Lists -->
+            </div>
+        </div>
+    </div>
+
+    <!-- BOOK DETAIL BOTTOM SHEET MODAL -->
+    <div id="bookDetailSheet" class="fixed inset-0 z-[70] bg-slate-900/40 dark:bg-black/60 hidden flex-col justify-end transition-all duration-300 opacity-0">
+        <div class="flex-1 w-full cursor-pointer" onclick="closeBookDetail()"></div>
+        
+        <div id="bookDetailPanel" class="w-full bg-white dark:bg-slate-900 rounded-t-3xl shadow-[0_-10px_40px_rgba(0,0,0,0.2)] transform translate-y-full transition-transform duration-500 max-h-[85vh] flex flex-col pointer-events-auto border-t border-slate-200 dark:border-slate-800">
+            <div class="w-full flex justify-center pt-3 pb-2 cursor-pointer" onclick="closeBookDetail()">
+                <div class="w-12 h-1.5 bg-slate-300 dark:bg-slate-700 rounded-full"></div>
+            </div>
+            
+            <div class="px-6 pb-8 pt-2 overflow-y-auto custom-scrollbar">
+                <div class="flex gap-5 mb-6">
+                    <div class="relative flex-shrink-0 w-[110px] sm:w-[130px] aspect-[1/1.4] folder-shadow">
+                        <div id="bdCover" class="absolute inset-0 folder-mask bg-white dark:bg-slate-800 flex flex-col">
+                            <div id="bdCoverBg" class="h-[60%] w-full bg-emerald-500 relative flex flex-col p-2 pt-6">
+                                <div id="bdPattern" class="absolute inset-0 opacity-15 pointer-events-none"></div>
+                                <div class="flex-1 flex items-center justify-center z-10">
+                                    <h4 id="bdCoverTitle" class="text-white font-heading font-black text-sm leading-tight drop-shadow-md text-center text-balance px-1">Title</h4>
+                                </div>
+                            </div>
+                            <div class="h-[40%] w-full bg-slate-50 dark:bg-slate-800 p-2.5 flex flex-col justify-end border-t border-black/5 dark:border-white/5">
+                                <span class="text-[9px] text-slate-400 dark:text-slate-500 font-bold mb-0.5 tracking-wider text-emerald-600">NHI KHOA</span>
+                                <div class="flex justify-between items-center text-[11px] text-slate-700 dark:text-slate-200 font-bold">
+                                    <span id="bdCoverChap" class="truncate pr-1">Category</span>
+                                    <i class="fas fa-chevron-down text-[8px] text-slate-400"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="flex-1 flex flex-col justify-center">
+                        <span id="bdCategory" class="text-[10px] font-black text-emerald-600 uppercase tracking-widest bg-emerald-50 dark:bg-emerald-900/30 px-2 py-0.5 rounded w-max mb-2">CATEGORY</span>
+                        <h2 id="bdTitle" class="font-heading font-black text-xl text-slate-800 dark:text-white leading-tight mb-2">Tên sách</h2>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 font-medium mb-3">Tài liệu lưu hành nội bộ<br>Hệ thống: TEAMDRCAT</p>
+                        <div class="flex items-center gap-1 text-amber-500 text-xs">
+                            <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star-half-alt"></i>
+                            <span class="text-slate-400 ml-1">(5.0)</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <button id="btnReadNow" class="w-full relative overflow-hidden group bg-gradient-to-r from-teal-500 to-emerald-600 hover:from-teal-400 hover:to-emerald-500 text-white font-bold text-lg py-4 px-6 rounded-2xl shadow-[0_10px_20px_rgba(16,185,129,0.3)] transition-all flex items-center justify-center gap-3">
+                    <div class="absolute inset-0 w-1/4 bg-white/20 -skew-x-12 -translate-x-full group-hover:animate-[shimmer_1.5s_infinite]"></div>
+                    <div class="absolute inset-0 bg-emerald-400/20 animate-pulse transform-gpu will-change-opacity"></div>
+                    <i class="fas fa-book-reader relative z-10 text-xl group-hover:scale-110 transition-transform"></i> <span class="tracking-wide relative z-10">ĐỌC NGAY</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- EBOOK PDF VIEWER MODAL -->
+    <div id="pdfViewer" class="fixed inset-0 z-[80] bg-black/40 hidden flex-col transition-all duration-300 translate-y-full opacity-0 transform-gpu will-change-transform">
+        <div class="flex-none bg-black/90 p-4 flex items-center justify-between pt-safe border-b border-white/10 shadow-sm z-20">
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-full bg-emerald-500/80 flex items-center justify-center shadow-lg border border-emerald-400/50">
+                    <i class="fas fa-book-medical text-white text-xs"></i>
+                </div>
+                <h3 id="pdfTitle" class="text-white font-bold text-sm tracking-wide line-clamp-1 drop-shadow-md">Giáo trình</h3>
+            </div>
+            <div class="flex items-center gap-2">
+                <a id="pdfExternalLink" href="#" target="_blank" class="w-9 h-9 rounded-full bg-emerald-500/20 hover:bg-emerald-500/40 text-emerald-300 flex items-center justify-center transition-colors border border-emerald-500/30 shadow-sm">
+                    <i class="fas fa-external-link-alt text-xs"></i>
+                </a>
+                <button onclick="closePdfViewer()" class="px-4 py-2 bg-white/20 hover:bg-white/30 text-white rounded-full text-xs font-bold transition-colors cursor-pointer border border-white/10 shadow-sm uppercase tracking-wider">
+                    Xong
+                </button>
+            </div>
+        </div>
+        <div class="flex-1 w-full bg-transparent relative max-w-5xl mx-auto border-x border-white/10 z-10 overflow-hidden">
+            <div id="pdfLoader" class="absolute inset-0 flex flex-col items-center justify-center bg-black/90 text-white z-0 transition-opacity duration-300">
+                <i class="fas fa-circle-notch fa-spin text-4xl text-emerald-500 mb-4 drop-shadow-lg"></i>
+                <p class="font-medium animate-pulse text-slate-300 text-sm mb-2">Đang tải PDF từ máy chủ...</p>
+                <p class="text-[10px] text-slate-400 max-w-xs text-center uppercase tracking-widest leading-relaxed">Bạn cũng có thể mở bên ngoài với nút Góc phải.</p>
+            </div>
+            <iframe id="pdfIframe" src="" class="w-full h-full border-0 relative z-10 bg-white shadow-inner" allowfullscreen></iframe>
+        </div>
+    </div>
 
     <script>
         const ALL_CASES = [
@@ -321,8 +893,8 @@
             categoryTabsEl.innerHTML = CATEGORIES.map(cat => {
                 const isActive = currentFilter === cat && !showOnlyBookmarks;
                 const baseClass = "px-5 py-2.5 rounded-full text-[11px] font-bold tracking-widest uppercase transition-all duration-300 border flex items-center gap-2 shrink-0 shadow-lg ";
-                const activeClass = "bg-white/20 text-white border-white/40 backdrop-blur-md";
-                const inactiveClass = "bg-slate-800/40 text-slate-300 border-slate-700/50 backdrop-blur-md hover:bg-slate-700/60";
+                const activeClass = "bg-white/20 text-white border-white/40 backdrop-blur-md transform-gpu transform-gpu";
+                const inactiveClass = "bg-slate-800/40 text-slate-300 border-slate-700/50 backdrop-blur-md transform-gpu hover:bg-slate-700/60";
                 
                 let iconClass = catIcons[cat] || "fa-book-medical";
                 if(isActive) iconClass = iconClass.replace(/text-\w+-\d+/, 'text-white');
@@ -375,7 +947,7 @@
                 const animDelay = (visibleCount * 0.05) + 's';
                 
                 html += `
-                <a href="${caseItem.url}" class="card-anim block group relative bg-white/70 dark:bg-slate-900/70 backdrop-blur-xl rounded-[24px] p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.2)] hover:shadow-2xl transition-all duration-300 border border-slate-200/50 dark:border-slate-800 overflow-hidden" style="animation-delay: ${animDelay}">
+                <a href="${caseItem.url}" onclick="try{gtag('event', 'select_content', { 'content_type': 'clinical_case', 'item_name': '${caseItem.title}', 'app_name': 'Nhi Khoa' });}catch(e){}" class="card-anim block group relative bg-white/70 dark:bg-slate-900/70 backdrop-blur-xl transform-gpu rounded-[24px] p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.2)] hover:shadow-2xl transition-all duration-300 border border-slate-200/50 dark:border-slate-800 overflow-hidden" style="animation-delay: ${animDelay}">
                     ${isCompleted ? '<div class="absolute top-0 right-0 w-16 h-16 bg-gradient-to-bl from-emerald-500/20 to-transparent flex items-start justify-end rounded-tr-[24px]"><i class="fas fa-check text-emerald-500 p-3 pr-4 text-lg"></i></div>' : ''}
                     <div class="relative flex items-center justify-between z-10">
                         <div class="flex items-center gap-4">
@@ -435,6 +1007,762 @@
         window.addEventListener('online', updateNetworkStatus);
         window.addEventListener('offline', updateNetworkStatus);
         
+        
+
+        /* -------------------------------------
+           EBOOK LIBRARY LOGIC (APPLE BOOKS)
+        ----------------------------------------*/
+        const EBOOK_CHAPTERS = [
+    {
+        "chapterName": "NHI KHOA ĐẠI CƯƠNG",
+        "gradient": "ebook-gradient-1",
+        "books": [
+            {
+                "title": "CÁC THỜI KỲ CỦA TRẺ EM",
+                "url": "https://drive.google.com/file/d/1oolC42JdYycqYQckilM0yACMeYqP2CT4/preview"
+            },
+            {
+                "title": "TIÊM CHỦNG Ở TRẺ EM",
+                "url": "https://drive.google.com/file/d/1GcfG9uJyaGhNyOLvR8M9homrt5bovV88/preview"
+            },
+            {
+                "title": "TĂNG TRƯỞNG THỂ CHẤT Ở TRẺ EM",
+                "url": "https://drive.google.com/file/d/1dgG6K_W3KANGgbJpPDDHeCNs4m7AXMK1/preview"
+            },
+            {
+                "title": "CHĂM SÓC SỨC KHỎE BAN ĐẦU",
+                "url": "https://drive.google.com/file/d/1UjwPN4oHb5VWN_X-NQiVRtbfJjpfu903/preview"
+            },
+            {
+                "title": "CHIẾN LƯỢC LỒNG GHÉP VÀ XỬ TRÍ TRẺ BỆNH",
+                "url": "https://drive.google.com/file/d/1BG5efY8qYetq5yvsH6PgdK3QzkhoQrlU/preview"
+            },
+            {
+                "title": "PHÁT TRIỂN TÂM THẦN – VẬN ĐỘNG BÌNH THƯỜNG Ở TRẺ EM",
+                "url": "https://drive.google.com/file/d/16Ex1e9xll_dLWk-RJbQYi7CopS1tdiEd/preview"
+            }
+        ]
+    },
+    {
+        "chapterName": "SƠ SINH",
+        "gradient": "ebook-gradient-2",
+        "books": [
+            {
+                "title": "ĐẶC ĐIỂM, CÁCH CHĂM SÓC TRẺ SƠ SINH ĐỦ THÁNG VÀ THIẾU THÁNG",
+                "url": "https://drive.google.com/file/d/1bq95YCy8AkCMSS6pRv3wNzrfq1-v-hsG/preview"
+            },
+            {
+                "title": "HỘI CHỨNG VÀNG DA TRẺ SƠ SINH",
+                "url": "https://drive.google.com/file/d/1PgHn6jDy37jWrnSVF4kklIjEytLaL_nx/preview"
+            },
+            {
+                "title": "HỘI CHỨNG SUY HÔ HẤP Ở TRẺ SƠ SINH",
+                "url": "https://drive.google.com/file/d/1IhRM7UjPJmifDrd-TluBmYSzCyynpBbB/preview"
+            },
+            {
+                "title": "NHIỄM KHUẨN SƠ SINH",
+                "url": "https://drive.google.com/file/d/1ANdoJ1nGiCtZ1QhVt0nCmJkOOvAkOpC-/preview"
+            },
+            {
+                "title": "MỘT SỐ CẤP CỨU NGOẠI KHOA TIÊU HÓA THƯỜNG GẶP GIAI ĐOẠN SƠ SINH",
+                "url": "https://drive.google.com/file/d/1Ffurv7T-7ekXRZiTLJRSdyNcr-2G5f9I/preview"
+            },
+            {
+                "title": "CHƯƠNG TRÌNH SÀNG LỌC SƠ SINH",
+                "url": "https://drive.google.com/file/d/1r9f1fLF0mn0N0xesrCnhn9JOfJQZ4jcF/preview"
+            }
+        ]
+    },
+    {
+        "chapterName": "CẤP CỨU – HỒI SỨC",
+        "gradient": "ebook-gradient-3",
+        "books": [
+            {
+                "title": "NHẬN BIẾT VÀ XỬ TRÍ BAN ĐẦU TRẺ BỊ BỆNH NẶNG",
+                "url": "https://drive.google.com/file/d/1qrq5kwn1CWs5q5d_Fmx6E4TiZhpp_RDf/preview"
+            },
+            {
+                "title": "SUY HÔ HẤP CẤP",
+                "url": "https://drive.google.com/file/d/1ag8fx9tiMW7RrC44ybPlfAXsyMQUx1WW/preview"
+            },
+            {
+                "title": "SỐC Ở TRẺ EM",
+                "url": "https://drive.google.com/file/d/1W2aJJSPDipMgUwinn3UFT1SFFsUhbd6c/preview"
+            },
+            {
+                "title": "ĐUỐI NƯỚC Ở TRẺ EM",
+                "url": "https://drive.google.com/file/d/1VsPKpAan_fQoA-n0Hkic2ZcehSF5-D_7/preview"
+            },
+            {
+                "title": "BỎNG Ở TRẺ EM",
+                "url": "https://drive.google.com/file/d/1XYagj8Xl4ZRJpSy7n0Dfb-Q_HsOz7KHL/preview"
+            },
+            {
+                "title": "NGỘ ĐỘC CẤP",
+                "url": "https://drive.google.com/file/d/1WUaNpUvRfPRQxG7plO4rvpHtnJVdOQrd/preview"
+            }
+        ]
+    },
+    {
+        "chapterName": "HÔ HẤP",
+        "gradient": "ebook-gradient-4",
+        "books": [
+            {
+                "title": "ĐẶC ĐIỂM HỆ HÔ HẤP Ở TRẺ EM",
+                "url": "https://drive.google.com/file/d/19_KH5URpg7FXVPnXaBzNLo_usgk7BGSB/preview"
+            },
+            {
+                "title": "NHIỄM KHUẨN HÔ HẤP CẤP TÍNH Ở TRẺ EM",
+                "url": "https://drive.google.com/file/d/12vBsuQc7zgsbM9R1ye0iNgykxVz0POBZ/preview"
+            },
+            {
+                "title": "BỆNH VIÊM PHẾ QUẢN PHỔI",
+                "url": "https://drive.google.com/file/d/1Ppf6F3Jrkq-SsraNpVz5nRN1akknjsNz/preview"
+            },
+            {
+                "title": "VIÊM PHỔI – MÀNG PHỔI DO TỤ CẦU",
+                "url": "https://drive.google.com/file/d/1RKFqT7k2OQPodSPKG2Km9zpEIegQ9V_2/preview"
+            },
+            {
+                "title": "VIÊM TIỂU PHẾ QUẢN CẤP Ở TRẺ EM",
+                "url": "https://drive.google.com/file/d/1FvdlDUwO37y48-yYJHVrysqnErpltPvI/preview"
+            },
+            {
+                "title": "HEN PHẾ QUẢN Ở TRẺ EM",
+                "url": "https://drive.google.com/file/d/1A7wzVpxjOwxoo7uMg34EcmhkUt01o89M/preview"
+            }
+        ]
+    },
+    {
+        "chapterName": "HUYẾT HỌC",
+        "gradient": "ebook-gradient-5",
+        "books": [
+            {
+                "title": "SỰ TẠO MÁU VÀ ĐẶC ĐIỂM MÁU NGOẠI BIÊN Ở TRẺ EM",
+                "url": "https://drive.google.com/file/d/1EHaHVLgTPLPn9g-fSg2gOJZiaDwt4XKC/preview"
+            },
+            {
+                "title": "HỘI CHỨNG THIẾU MÁU Ở TRẺ EM",
+                "url": "https://drive.google.com/file/d/1PnFp88-TtIw_FIqNWrQ-Exb-1RMTPUA4/preview"
+            },
+            {
+                "title": "THIẾU MÁU THIẾU SẮT",
+                "url": "https://drive.google.com/file/d/15GHil_EUY9qisBW5ldhiM-JdflFMylJD/preview"
+            },
+            {
+                "title": "THIẾU MÁU TAN MÁU",
+                "url": "https://drive.google.com/file/d/1v44DjUDO4d_gIuBaPs-LsMErRs_dXQgv/preview"
+            },
+            {
+                "title": "HỘI CHỨNG XUẤT HUYẾT Ở TRẺ EM",
+                "url": "https://drive.google.com/file/d/1RfBLhlzwGFopS3lCIN6mIY_2tT72HRma/preview"
+            },
+            {
+                "title": "XUẤT HUYẾT GIẢM TIỂU CẦU TIÊN PHÁT",
+                "url": "https://drive.google.com/file/d/1eUOHpkAelBMloi4AI8PcUlF8aEDZ-cfB/preview"
+            },
+            {
+                "title": "BỆNH HEMOPHILIA",
+                "url": "https://drive.google.com/file/d/1X2hNkxo84MelADXDty9c8gSy84wPvQwb/preview"
+            },
+            {
+                "title": "CHỈ ĐỊNH TRUYỀN MÁU, CÁC TAI BIẾN DO TRUYỀN MÁU VÀ CÁCH XỬ TRÍ",
+                "url": "https://drive.google.com/file/d/1E0AO3Li0HO1sgTiZilSO6T74s2LihSNO/preview"
+            },
+            {
+                "title": "BẠCH CẦU CẤP Ở TRẺ EM",
+                "url": "https://drive.google.com/file/d/1Qog1ev2Mc6f1Vnvib7Ve_-PKANFXogLl/preview"
+            }
+        ]
+    },
+    {
+        "chapterName": "THẬN TIẾT NIỆU",
+        "gradient": "ebook-gradient-1",
+        "books": [
+            {
+                "title": "ĐẶC ĐIỂM GIẢI PHẪU VÀ SINH LÝ HỆ THẬN TIẾT NIỆU TRẺ EM",
+                "url": "https://drive.google.com/file/d/1z3vscm9GmJJHhLego3ewr4eQb2e8_6_J/preview"
+            },
+            {
+                "title": "VIÊM CẦU THẬN CẤP SAU NHIỄM LIÊN CẦU",
+                "url": "https://drive.google.com/file/d/1n84PcQL3-4SifQN_1VpNow65aX4K0yHq/preview"
+            },
+            {
+                "title": "HỘI CHỨNG THẬN HƯ TIÊN PHÁT",
+                "url": "https://drive.google.com/file/d/1PxJPpL9GPIy1ZEiDbecGz7ARpvvBsV7S/preview"
+            },
+            {
+                "title": "NHIỄM KHUẨN TIẾT NIỆU",
+                "url": "https://drive.google.com/file/d/1aDWqL-rCSi2hLHPQJyOvKskQG_yVbBOk/preview"
+            },
+            {
+                "title": "TỔN THƯƠNG THẬN CẤP",
+                "url": "https://drive.google.com/file/d/1oEjQQTJt00jH0gCUHzaWO9UheHbySk-r/preview"
+            }
+        ]
+    },
+    {
+        "chapterName": "TIM MẠCH",
+        "gradient": "ebook-gradient-2",
+        "books": [
+            {
+                "title": "ĐẶC ĐIỂM HỆ TUẦN HOÀN TRẺ EM",
+                "url": "https://drive.google.com/file/d/1Xrtfwvp3OczSGjz36KMjMjbP8qgkg0gT/preview"
+            },
+            {
+                "title": "ĐẶC ĐIỂM ĐIỆN TÂM ĐỒ Ở TRẺ EM BÌNH THƯỜNG",
+                "url": "https://drive.google.com/file/d/10ms-__pHUA4WmEjx1KuhAxBnKuBTJrwX/preview"
+            },
+            {
+                "title": "THẤP TIM",
+                "url": "https://drive.google.com/file/d/1dpcCUX9Q5C7UuatalPsfZqdlFykg2DZn/preview"
+            },
+            {
+                "title": "BỆNH TIM BẨM SINH Ở TRẺ EM",
+                "url": "https://drive.google.com/file/d/1Rf541QU5rjkTDZwbl2VF_hGUhrTFeLzo/preview"
+            },
+            {
+                "title": "SUY TIM Ở TRẺ EM",
+                "url": "https://drive.google.com/file/d/1mc_eqbGWVJ8uh8eVdHUlRMuOJQcpC1H1/preview"
+            },
+            {
+                "title": "VIÊM NỘI TÂM MẠC NHIỄM KHUẨN",
+                "url": "https://drive.google.com/file/d/1sS93Qm-slzQkJhrpm0gx1mRuLukFlz7Y/preview"
+            }
+        ]
+    },
+    {
+        "chapterName": "TIÊU HÓA",
+        "gradient": "ebook-gradient-3",
+        "books": [
+            {
+                "title": "ĐẶC ĐIỂM GIẢI PHẪU VÀ SINH LÝ CƠ QUAN TIÊU HÓA Ở TRẺ EM",
+                "url": "https://drive.google.com/file/d/1FAwkqd91bTRYFdZtRxe5_dqge-5GgabA/preview"
+            },
+            {
+                "title": "ĐAU BỤNG CẤP TÍNH Ở TRẺ EM",
+                "url": "https://drive.google.com/file/d/1NlGXD7Z0aaXpaRQ9vPry6x_StVC3s5FG/preview"
+            },
+            {
+                "title": "ĐAU BỤNG MẠN TÍNH Ở TRẺ EM",
+                "url": "https://drive.google.com/file/d/1OTGWLYqkeN32vam6fySLFwwa79EHqANw/preview"
+            },
+            {
+                "title": "HỘI CHỨNG NÔN TRỚ Ở TRẺ EM",
+                "url": "https://drive.google.com/file/d/12gscVmW4Lz9NHfml8qzLILN6-9okVG_y/preview"
+            },
+            {
+                "title": "TÁO BÓN Ở TRẺ EM",
+                "url": "https://drive.google.com/file/d/18XBeLRKp0TiXs2b1NX1_NhXP8J_Hqod9/preview"
+            },
+            {
+                "title": "TIÊU CHẢY CẤP Ở TRẺ EM",
+                "url": "https://drive.google.com/file/d/1-nUfsghzqWb0CJkeOSFjIsmD93gd8a5i/preview"
+            },
+            {
+                "title": "TIÊU CHẢY KÉO DÀI Ở TRẺ EM",
+                "url": "https://drive.google.com/file/d/1I47B9Hyxhao9z9B3Daaw3QZqv7pvFuIp/preview"
+            },
+            {
+                "title": "BỆNH GIUN SÁN Ở TRẺ EM",
+                "url": "https://drive.google.com/file/d/1I3AFap9EQavu_3q4t814LHoN_dkMFnDy/preview"
+            }
+        ]
+    },
+    {
+        "chapterName": "DINH DƯỠNG",
+        "gradient": "ebook-gradient-4",
+        "books": [
+            {
+                "title": "ĐẶC ĐIỂM DA CƠ XƯƠNG Ở TRẺ EM",
+                "url": "https://drive.google.com/file/d/1ohbs9zkTA4geEBRGlnliRJpgfmDUdH9B/preview"
+            },
+            {
+                "title": "NHU CẦU DINH DƯỠNG CỦA TRẺ EM",
+                "url": "https://drive.google.com/file/d/1fW86eW2jDDQN8ddxFB6Qj2dlbZVvV37u/preview"
+            },
+            {
+                "title": "DINH DƯỠNG TRẺ EM TỪ SƠ SINH ĐẾN 5 TUỔI",
+                "url": "https://drive.google.com/file/d/1typtgZQKEhnJZ8Pa0B7pS86VEbNdZVmf/preview"
+            },
+            {
+                "title": "NUÔI CON BẰNG SỮA MẸ",
+                "url": "https://drive.google.com/file/d/1GRqKKCyRiR1lBRqQim-vuc2yRIXN0L-E/preview"
+            },
+            {
+                "title": "BỆNH SUY DINH DƯỠNG Ở TRẺ EM",
+                "url": "https://drive.google.com/file/d/1ToEcjW6JAn5f7mOULYS_o1mXu6XC9v6c/preview"
+            },
+            {
+                "title": "BỆNH CÒI XƯƠNG DINH DƯỠNG Ở TRẺ EM",
+                "url": "https://drive.google.com/file/d/18GEmKnX5ac0C_fSktHQyY7vsSMDMSqpc/preview"
+            }
+        ]
+    },
+    {
+        "chapterName": "NỘI TIẾT – CHUYỂN HÓA",
+        "gradient": "ebook-gradient-5",
+        "books": [
+            {
+                "title": "BƯỚU CỔ ĐƠN THUẦN Ở TRẺ EM",
+                "url": "https://drive.google.com/file/d/1yxfurY0NX9M-8Cp5xu6yOdRtJ8G9scU_/preview"
+            },
+            {
+                "title": "CƯỜNG GIÁP TRẠNG Ở TRẺ EM",
+                "url": "https://drive.google.com/file/d/12PFsZsRK3sk_VQog0fNVJJ3aEgXOw2aT/preview"
+            },
+            {
+                "title": "SUY GIÁP TRẠNG BẨM SINH",
+                "url": "https://drive.google.com/file/d/1iKlPqtXO-R-6hNrE5f9seMh5LMZ2K95Y/preview"
+            },
+            {
+                "title": "ĐÁI THÁO NHẠT Ở TRẺ EM",
+                "url": "https://drive.google.com/file/d/1aPD2aZEv0bNyS7GCLIgPKiAnzg7Orvq1/preview"
+            },
+            {
+                "title": "ĐÁI THÁO ĐƯỜNG Ở TRẺ EM",
+                "url": "https://drive.google.com/file/d/1J3XlmVkC80h7UxZwrGVAepK7kdjnVKF7/preview"
+            },
+            {
+                "title": "TĂNG SẢN THƯỢNG THẬN BẨM SINH",
+                "url": "https://drive.google.com/file/d/1lfzsAzaXLBTsaj6GACl1oj9HLEpZefTw/preview"
+            }
+        ]
+    },
+    {
+        "chapterName": "THẦN KINH",
+        "gradient": "ebook-gradient-1",
+        "books": [
+            {
+                "title": "ĐẶC ĐIỂM HỆ THẦN KINH Ở TRẺ EM",
+                "url": "https://drive.google.com/file/d/1_HlaxG8d64qznoGz1Jt0ZzVJfXhs1XRe/preview"
+            },
+            {
+                "title": "HÔ MÊ Ở TRẺ EM",
+                "url": "https://drive.google.com/file/d/1e-WUKZtm4FVBRqPFi_-zNF69JZRIdI1m/preview"
+            },
+            {
+                "title": "HỘI CHỨNG CO GIẬT Ở TRẺ EM",
+                "url": "https://drive.google.com/file/d/1YCr7e04cSx559FYSzpvxiqNiAtZWfNwN/preview"
+            },
+            {
+                "title": "CO GIẬT DO SỐT",
+                "url": "https://drive.google.com/file/d/1GTmdpcmuZPtW1gCr3ZTdG8IyqX0aAxu8/preview"
+            },
+            {
+                "title": "CHẢY MÁU TRONG SỌ Ở TRẺ SƠ SINH VÀ TRẺ NHỎ",
+                "url": "https://drive.google.com/file/d/1XfyM2SdgKxKoBIus8GIsb9AmswFzBR-4/preview"
+            },
+            {
+                "title": "CHẢY MÁU TRONG SỌ Ở TRẺ LỚN",
+                "url": "https://drive.google.com/file/d/1TydobMEbR4d9AW8bjFS8IXqHNQXot_Sn/preview"
+            }
+        ]
+    },
+    {
+        "chapterName": "TRUYỀN NHIỄM",
+        "gradient": "ebook-gradient-2",
+        "books": [
+            {
+                "title": "SỐT Ở TRẺ EM",
+                "url": "https://drive.google.com/file/d/1wKyNdfK13OQHp6n5K6q_NK9IrALrbrET/preview"
+            },
+            {
+                "title": "SỐT XUẤT HUYẾT DENGUE",
+                "url": "https://drive.google.com/file/d/12fFHetAd9rKtemAkfEH6FSFYSAaLLrjX/preview"
+            },
+            {
+                "title": "BỆNH TAY CHÂN MIỆNG",
+                "url": "https://drive.google.com/file/d/1mun-Jz8vGbwEsCbUN_WJu2PLSIpQuFnN/preview"
+            },
+            {
+                "title": "VIÊM MÀNG NÃO NHIỄM KHUẨN Ở TRẺ EM",
+                "url": "https://drive.google.com/file/d/180f2XF8OUV7NGgK_0ZcwQak2VbRLLMSU/preview"
+            },
+            {
+                "title": "BỆNH VIÊM NÃO CẤP Ở TRẺ EM",
+                "url": "https://drive.google.com/file/d/125eJkv1kpqMXFzD4_F0AQuF0vyLKDQBK/preview"
+            }
+        ]
+    }
+];
+
+        const ebookLibraryModal = document.getElementById('ebookLibrary');
+        const pdfViewerModal = document.getElementById('pdfViewer');
+        const ebookListEl = document.getElementById('ebookList');
+        const ebookSearchInput = document.getElementById('ebookSearchInput');
+
+        // Generative Medical Patterns
+        const catPatterns = {
+            "NHI KHOA ĐẠI CƯƠNG": "background-image: radial-gradient(circle at 2px 2px, white 1px, transparent 0); background-size: 10px 10px;", 
+            "SƠ SINH": "background-image: repeating-linear-gradient(45deg, white 25%, transparent 25%, transparent 75%, white 75%, white); background-position: 0 0, 10px 10px; background-size: 20px 20px;", 
+            "CẤP CỨU – HỒI SỨC": "background-image: repeating-radial-gradient(circle at 0 0, transparent 0, white 4px, transparent 5px, transparent 10px); background-size: 20px 20px;",
+            "HÔ HẤP": "background-image: repeating-linear-gradient(-45deg, transparent, transparent 4px, white 4px, white 5px);", 
+            "HUYẾT HỌC": "background-image: repeating-linear-gradient(45deg, transparent, transparent 4px, white 6px, white 8px); background-size: 15px 15px;",
+            "THẬN TIẾT NIỆU": "background: linear-gradient(135deg, white 25%, transparent 25%) -10px 0, linear-gradient(225deg, white 25%, transparent 25%) -10px 0; background-size: 20px 20px;",
+            "TIM MẠCH": "background-image: radial-gradient(circle, white 2px, transparent 2px); background-size: 16px 16px;",
+            "TIÊU HÓA": "background-image: linear-gradient(0deg, transparent 9px, white 10px), linear-gradient(90deg, transparent 9px, white 10px); background-size: 10px 10px;",
+            "TDefault": "background-image: radial-gradient(circle at 2px 2px, white 1px, transparent 0); background-size: 14px 14px;"
+        };
+
+        let isLibraryVideoLoaded = false;
+        let bgVideoInterval = null;
+        let currentVidIdx = 0;
+
+        function startLibraryBackgroundVideos() {
+            const vids = [document.getElementById('bgVid1'), document.getElementById('bgVid2'), document.getElementById('bgVid3')];
+            if(!vids[0]) return;
+
+            // Load and play current video
+            const v = vids[currentVidIdx];
+            const srcEl = v.querySelector('source');
+            if(srcEl && !srcEl.src) {
+                srcEl.src = srcEl.getAttribute('data-src');
+                v.load();
+            }
+            
+            // Play if paused
+            if (v.paused) v.play().catch(e => console.log('Autoplay block', e));
+
+            if (!bgVideoInterval) {
+                bgVideoInterval = setInterval(() => {
+                    const nextIdx = (currentVidIdx + 1) % 3;
+                    const nextVid = vids[nextIdx];
+                    
+                    // JIT Load next video before fading
+                    const nextSrcEl = nextVid.querySelector('source');
+                    if(nextSrcEl && !nextSrcEl.src) {
+                        nextSrcEl.src = nextSrcEl.getAttribute('data-src');
+                        nextVid.load();
+                    }
+                    
+                    nextVid.play().catch(e => console.log(e));
+                    nextVid.classList.remove('opacity-0');
+                    nextVid.classList.add('opacity-100');
+                    
+                    const prevVid = vids[currentVidIdx];
+                    prevVid.classList.remove('opacity-100');
+                    prevVid.classList.add('opacity-0');
+                    
+                    const prevIdx = currentVidIdx;
+                    setTimeout(() => { 
+                        if (vids[prevIdx].classList.contains('opacity-0')) {
+                            vids[prevIdx].pause(); 
+                        }
+                    }, 2000);
+                    
+                    currentVidIdx = nextIdx;
+                }, 8000);
+            }
+        }
+
+        function stopLibraryBackgroundVideos() {
+            if (bgVideoInterval) {
+                clearInterval(bgVideoInterval);
+                bgVideoInterval = null;
+            }
+            // Pause all videos immediately to free up GPU decoder queue and battery
+            const vids = [document.getElementById('bgVid1'), document.getElementById('bgVid2'), document.getElementById('bgVid3')];
+            vids.forEach(v => {
+                if(v && !v.paused) v.pause();
+            });
+        }
+
+        function openEbookLibrary() {
+            try { gtag('event', 'open_library', { 'app_name': 'Nhi Khoa' }); } catch(e) {}
+            ebookLibraryModal.classList.remove('pointer-events-none');
+            requestAnimationFrame(() => {
+                ebookLibraryModal.classList.remove('translate-y-full');
+            });
+            setTimeout(() => {
+                document.body.style.overflow = 'hidden'; 
+                if (ebookListEl.children.length === 0) {
+                    renderEbooks();
+                } else if (ebookSearchInput && ebookSearchInput.value !== '') {
+                    ebookSearchInput.value = '';
+                    renderEbooks();
+                }
+            }, 350); 
+
+            // Start video player immediately to satisfy iOS/Safari Autoplay Policies under direct user interaction
+            startLibraryBackgroundVideos(); 
+        }
+
+        window.openEbookLibrary = openEbookLibrary;
+
+        function closeEbookLibrary() {
+            ebookLibraryModal.classList.add('translate-y-full');
+            ebookLibraryModal.classList.add('pointer-events-none');
+            document.body.style.overflow = 'auto'; 
+            
+            // Critical Battery & RAM save: Stop background player
+            stopLibraryBackgroundVideos();
+        }
+
+        window.closeEbookLibrary = closeEbookLibrary;
+
+        function renderEbooks() {
+            const term = ebookSearchInput ? ebookSearchInput.value.toLowerCase() : "";
+            let html = "";
+            let totalBooksVisible = 0;
+            
+            EBOOK_CHAPTERS.forEach((chapter) => {
+                if(!chapter.books || chapter.books.length === 0) return;
+                const filteredBooks = chapter.books.filter(book => !term || book.title.toLowerCase().includes(term));
+                if (filteredBooks.length === 0) return;
+                
+                const gradClass = chapter.gradient;
+                const patternStyle = catPatterns[chapter.chapterName] || catPatterns["TDefault"];
+                
+                html += `<div class="flex flex-col">`;
+                html += `<div class="flex items-center justify-between px-2 mb-2">
+                            <h3 class="font-heading font-black text-xl text-slate-800 dark:text-white uppercase tracking-wider pl-2 border-l-4 border-slate-800 dark:border-white leading-none">${chapter.chapterName}</h3>
+                            <span class="text-[10px] font-bold text-slate-500 dark:text-slate-400 bg-slate-200/50 dark:bg-slate-800/50 px-2.5 py-1 rounded-full border border-slate-300/50 dark:border-slate-700">${filteredBooks.length} Bài</span>
+                         </div>`;
+                         
+                html += `<div class="relative w-full">`;
+                html += `<div class="absolute bottom-[20px] left-2 right-2 h-1 bg-gradient-to-r from-transparent via-slate-300 dark:via-slate-600 to-transparent shadow-[0_5px_15px_rgba(16,185,129,0.3)] dark:shadow-[0_5px_15px_rgba(0,0,0,0.6)] z-0 rounded-full opacity-70"></div>`;
+                html += `<div class="flex gap-4 overflow-x-auto custom-scrollbar pb-8 pt-2 px-2 snap-x snap-mandatory scroll-smooth relative z-10" style="-webkit-overflow-scrolling: touch; contain: content;">`;
+                
+                filteredBooks.forEach((book) => {
+                    totalBooksVisible++;
+                    const displayTitle = book.title ? book.title : "Tài liệu " + chapter.chapterName;
+                    
+                    html += `
+                    <div class="folder-card-wrapper cursor-pointer group w-[130px] flex-shrink-0 snap-start relative aspect-[1/1.4] folder-shadow transform-gpu" style="will-change: transform;" onclick="openBookDetail('${book.url}', '${displayTitle.replace(/'/g, "\'")}', '${chapter.chapterName}', '${gradClass}')">
+                        <div class="absolute inset-0 bg-slate-300 dark:bg-slate-700 folder-mask translate-x-3 -translate-y-2 scale-95 opacity-50 z-0 transition-transform duration-300 group-hover:translate-x-4 group-hover:-translate-y-3"></div>
+                        <div class="absolute inset-0 bg-slate-200 dark:bg-slate-600 folder-mask translate-x-1.5 -translate-y-1 scale-[0.98] opacity-80 z-0 transition-transform duration-300 group-hover:translate-x-2 group-hover:-translate-y-1.5"></div>
+                        <div class="absolute inset-0 folder-mask bg-white dark:bg-slate-800 z-10 flex flex-col transition-transform duration-300 group-hover:-translate-y-1">
+                            <div class="h-[60%] w-full ${gradClass} relative flex flex-col p-2 pt-6">
+                                <div class="absolute inset-0 opacity-10 pointer-events-none" style="${patternStyle}"></div>
+                                <div class="absolute inset-0 z-20 pointer-events-none glare-element opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                                <div class="flex-1 flex items-center justify-center z-10">
+                                     <h4 class="text-white font-heading font-black text-[11px] leading-tight drop-shadow-md text-center text-balance px-1">
+                                         ${displayTitle}
+                                     </h4>
+                                </div>
+                            </div>
+                            <div class="h-[40%] w-full bg-slate-50 dark:bg-slate-800 p-2.5 flex flex-col justify-end border-t border-black/5 dark:border-white/5">
+                                <span class="text-[8px] text-emerald-600 dark:text-emerald-500 font-black mb-0.5 tracking-wider">NHI KHOA</span>
+                                <div class="flex justify-between items-center text-[10px] text-slate-700 dark:text-slate-200 font-bold">
+                                    <span class="truncate pr-1">${chapter.chapterName}</span>
+                                    <i class="fas fa-chevron-down text-[8px] text-slate-400 dark:text-slate-500"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    `;
+                });
+                
+                html += `</div></div></div>`;
+            });
+            
+            if(totalBooksVisible === 0) {
+                html = `<div class="w-full py-16 text-center"><i class="fas fa-search-minus text-5xl text-slate-300 dark:text-slate-600 mb-4 drop-shadow"></i><p class="text-sm font-medium text-slate-500 mt-3">Thư viện chưa có cuốn sách này.</p></div>`;
+            }
+            if (ebookListEl) ebookListEl.innerHTML = html;
+        }
+
+        if(ebookSearchInput) {
+            let searchTimeout;
+            ebookSearchInput.addEventListener('input', () => {
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(() => { renderEbooks(); }, 250); 
+            });
+        }
+
+        let activePdfUrl = "";
+        let activePdfTitle = "";
+
+        function openBookDetail(url, title, category, gradClass) {
+            activePdfUrl = url;
+            activePdfTitle = title;
+            
+            const sheet = document.getElementById('bookDetailSheet');
+            const panel = document.getElementById('bookDetailPanel');
+            
+            document.getElementById('bdTitle').innerText = title;
+            document.getElementById('bdCoverTitle').innerText = title;
+            document.getElementById('bdCategory').innerText = category;
+            
+            const coverBgEl = document.getElementById('bdCoverBg');
+            coverBgEl.className = `h-[60%] w-full ${gradClass} relative flex flex-col p-2 pt-6`;
+            document.getElementById('bdCoverChap').innerText = category;
+            
+            const patternEl = document.getElementById('bdPattern');
+            patternEl.style = catPatterns[category] || catPatterns["TDefault"];
+            
+            sheet.classList.remove('hidden');
+            sheet.classList.add('flex');
+            
+            requestAnimationFrame(() => {
+                sheet.classList.remove('opacity-0');
+                setTimeout(() => { panel.classList.remove('translate-y-full'); }, 10);
+            });
+        }
+
+        window.openBookDetail = openBookDetail;
+
+        function closeBookDetail() {
+            const sheet = document.getElementById('bookDetailSheet');
+            const panel = document.getElementById('bookDetailPanel');
+            
+            panel.classList.add('translate-y-full');
+            setTimeout(() => {
+                sheet.classList.add('opacity-0');
+                setTimeout(() => {
+                    sheet.classList.remove('flex');
+                    sheet.classList.add('hidden');
+                }, 300);
+            }, 250); 
+        }
+
+        window.closeBookDetail = closeBookDetail;
+
+        const btnReadNow = document.getElementById('btnReadNow');
+        if(btnReadNow) {
+            btnReadNow.addEventListener('click', () => {
+                const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+                const isMobile = window.innerWidth < 768 || isIOS;
+                
+                if (typeof gtag === 'function') {
+                    try {
+                        const originalTitle = document.title;
+                        document.title = 'Sách NHI KHOA: ' + activePdfTitle;
+                        
+                        const basePath = window.location.pathname.endsWith('/') ? window.location.pathname : window.location.pathname + '/';
+                        const fakePath = basePath + 'docsach/' + encodeURIComponent(activePdfTitle.replace(/\s+/g, '-'));
+
+                        gtag('event', 'open_book', {
+                            'event_category': 'Medical Ebook',
+                            'event_label': activePdfTitle,
+                            'book_url': activePdfUrl,
+                            'transport_type': 'beacon'
+                        });
+                        gtag('event', 'page_view', {
+                            'page_title': document.title,
+                            'page_path': fakePath,
+                            'page_location': window.location.origin + fakePath,
+                            'transport_type': 'beacon'
+                        });
+                        history.replaceState(null, '', fakePath);
+                        setTimeout(() => { 
+                            document.title = originalTitle; 
+                                history.replaceState(null, '', basePath);
+                        }, 1000);
+                    } catch(e) {}
+                }
+
+                if (isMobile) {
+                    window.open(activePdfUrl, '_blank');
+                    closeBookDetail(); 
+                } else {
+                    closeBookDetail();
+                    setTimeout(() => { openPdfViewer(activePdfUrl, activePdfTitle); }, 300);
+                }
+            });
+        }
+
+                function openPdfViewer(url) {
+            try { gtag("event", "view_item", { "item_name": url, "app_name": "Nhi Khoa" }); } catch(e) {}
+            const iframe = document.getElementById('pdfIframe');
+            const loader = document.getElementById('pdfLoader');
+            
+            document.getElementById('pdfTitle').innerText = title;
+            document.getElementById('pdfExternalLink').href = url;
+            
+            iframe.src = "about:blank"; 
+            if(loader) { 
+                loader.style.display = 'flex'; 
+                loader.style.opacity = '1'; 
+            }
+            
+            pdfViewerModal.classList.remove('hidden');
+            pdfViewerModal.classList.add('flex');
+            
+            requestAnimationFrame(() => {
+                requestAnimationFrame(() => {
+                    pdfViewerModal.classList.remove('opacity-0', 'translate-y-full');
+                });
+            });
+            
+            setTimeout(() => { iframe.src = url; }, 300);
+            
+            iframe.onload = () => {
+                if(iframe.src !== "about:blank" && iframe.src !== window.location.href && loader) {
+                    loader.style.opacity = '0';
+                    setTimeout(() => { loader.style.display = 'none'; }, 300);
+                }
+            };
+        }
+
+        window.openPdfViewer = openPdfViewer;
+
+        function closePdfViewer() {
+            pdfViewerModal.classList.add('opacity-0', 'translate-y-full');
+            document.getElementById('pdfIframe').src = "about:blank";
+            setTimeout(() => {
+                pdfViewerModal.classList.remove('flex');
+                pdfViewerModal.classList.add('hidden');
+            }, 300);
+        }
+
+        window.closePdfViewer = closePdfViewer;
+
+        /* PREMIUM DRAG-TO-SCROLL (DESKTOP UX) */
+        let _isDown = false;
+        let _startX;
+        let _scrollLeft;
+        let _dragTarget = null;
+        let _hasDragged = false;
+
+        document.addEventListener('mousedown', (e) => {
+            const container = e.target.closest('.overflow-x-auto');
+            if(!container) return;
+            _isDown = true;
+            _dragTarget = container;
+            _hasDragged = false;
+            _startX = e.pageX - _dragTarget.offsetLeft;
+            _scrollLeft = _dragTarget.scrollLeft;
+            if (_dragTarget) {
+                _dragTarget.style.scrollBehavior = 'auto'; 
+                _dragTarget.style.scrollSnapType = 'none'; 
+                _dragTarget.style.cursor = 'grabbing';
+            }
+        });
+
+        document.addEventListener('mouseleave', () => { if(_isDown) _resetDrag(); });
+        document.addEventListener('mouseup', () => { if(_isDown) _resetDrag(); });
+
+        document.addEventListener('mousemove', (e) => {
+            if(!_isDown || !_dragTarget) return;
+            const x = e.pageX - _dragTarget.offsetLeft;
+            const walk = (x - _startX); 
+            if(Math.abs(walk) > 5) { _hasDragged = true; }
+            if(_hasDragged) {
+                e.preventDefault();
+                _dragTarget.scrollLeft = _scrollLeft - walk;
+            }
+        });
+
+        function _resetDrag() {
+            _isDown = false;
+            if(_dragTarget) {
+                _dragTarget.style.scrollBehavior = '';
+                _dragTarget.style.scrollSnapType = '';
+                _dragTarget.style.cursor = '';
+                _dragTarget = null;
+            }
+            setTimeout(() => { _hasDragged = false; }, 50); 
+        }
+
+        document.addEventListener('click', (e) => {
+            if(_hasDragged) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+        }, true);
+
         // Call it once on load
         document.addEventListener('DOMContentLoaded', updateNetworkStatus);
 
