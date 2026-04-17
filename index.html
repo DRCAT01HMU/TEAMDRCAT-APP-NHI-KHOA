@@ -1,6 +1,9 @@
 <!DOCTYPE html>
 <html lang="vi" class="light">
 <head>
+    <link rel="preconnect" href="https://drive.google.com" crossorigin>
+    <link rel="preconnect" href="https://clients6.google.com" crossorigin>
+    <link rel="dns-prefetch" href="https://drive.google.com">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>CASE LÂM SÀNG NHI KHOA</title>
@@ -982,7 +985,7 @@
         window.addEventListener('focus', () => { updateStats(); renderCases(); silentVerify(); });
 
         if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js').then(r => console.log('SW V8 ready')).catch(e => console.error(e)));
+            window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js').then(r => console.log('SW V9 ready')).catch(e => console.error(e)));
         }
     
         // NETWORK STATUS LISTENER
@@ -1658,7 +1661,8 @@
                     closeBookDetail(); 
                 } else {
                     closeBookDetail();
-                    setTimeout(() => { openPdfViewer(activePdfUrl, activePdfTitle); }, 300);
+                    // Open immediately without waiting for detail modal to close completely
+                    openPdfViewer(activePdfUrl, activePdfTitle);
                 }
             });
         }
@@ -1671,7 +1675,8 @@
             document.getElementById('pdfTitle').innerText = title;
             document.getElementById('pdfExternalLink').href = url;
             
-            iframe.src = "about:blank"; 
+            // Fire network request immediately before animation to save ~400ms !
+            iframe.src = url; 
             if(loader) { 
                 loader.style.display = 'flex'; 
                 loader.style.opacity = '1'; 
@@ -1685,8 +1690,6 @@
                     pdfViewerModal.classList.remove('opacity-0', 'translate-y-full');
                 });
             });
-            
-            setTimeout(() => { iframe.src = url; }, 300);
             
             iframe.onload = () => {
                 if(iframe.src !== "about:blank" && iframe.src !== window.location.href && loader) {
