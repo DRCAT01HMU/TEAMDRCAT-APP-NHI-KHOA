@@ -595,7 +595,13 @@
                     <i class="fas fa-heart"></i>
                     <span id="bookmarkCount" class="absolute -top-1 -right-1 bg-gradient-to-tr from-red-600 to-pink-500 text-white text-[10px] font-bold w-4 h-4 flex items-center justify-center rounded-full hidden shadow-lg">0</span>
                 </button>
-                <button id="themeToggle" class="w-10 h-10 rounded-full bg-slate-100/80 dark:bg-slate-800/80 flex items-center justify-center text-slate-600 dark:text-slate-300 transition-colors shadow-inner border border-white dark:border-slate-700">
+                
+                <button onclick="toggleNotificationSidebar()" class="relative w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-slate-100 dark:bg-white/5 flex items-center justify-center text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-white/10 hover:text-blue-500 dark:hover:text-blue-400 transition-all duration-300 shadow-sm border border-slate-200/50 dark:border-white/5 mr-1 sm:mr-2">
+                    <i id="bellIcon" class="fas fa-bell text-sm sm:text-base transition-transform origin-top"></i>
+                    <span id="notifBadge" class="absolute top-0 right-0 w-3 h-3 bg-red-500 border-2 border-white dark:border-slate-900 rounded-full hidden z-10"></span>
+                    <span id="notifPing" class="absolute top-0 right-0 w-3 h-3 bg-red-500 rounded-full animate-ping hidden"></span>
+                </button>
+<button id="themeToggle" class="w-10 h-10 rounded-full bg-slate-100/80 dark:bg-slate-800/80 flex items-center justify-center text-slate-600 dark:text-slate-300 transition-colors shadow-inner border border-white dark:border-slate-700">
                     <i class="fas fa-moon dark:hidden text-emerald-500"></i>
                     <i class="fas fa-sun hidden dark:block text-amber-500"></i>
                 </button>
@@ -1768,5 +1774,174 @@
         document.addEventListener('DOMContentLoaded', updateNetworkStatus);
 
     </script>
+
+    <!-- Notification Sidebar -->
+    <div id="notifSidebarOverlay" onclick="toggleNotificationSidebar()" class="fixed inset-0 bg-black/40 z-[110] opacity-0 pointer-events-none transition-opacity duration-300 backdrop-blur-sm hidden"></div>
+    <div id="notifSidebar" class="fixed top-0 right-0 h-full w-full sm:w-96 bg-white dark:bg-slate-900 shadow-2xl z-[120] transform translate-x-full transition-transform duration-300 flex flex-col border-l border-slate-200 dark:border-slate-800">
+        <div class="px-5 py-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between bg-slate-50/80 dark:bg-slate-900/80 backdrop-blur-md pt-safe">
+            <h3 class="font-bold text-slate-800 dark:text-white flex items-center gap-2">
+                <i class="fas fa-bell text-blue-500"></i> Thông báo mới
+            </h3>
+            <button onclick="toggleNotificationSidebar()" class="w-8 h-8 rounded-full bg-slate-200 dark:bg-slate-800 flex items-center justify-center text-slate-500 dark:text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/20 transition-colors">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div id="notifList" class="flex-1 overflow-y-auto p-4 space-y-4">
+            <!-- Loading skeleton -->
+            <div class="animate-pulse flex space-x-4">
+                <div class="rounded-full bg-slate-200 dark:bg-slate-700 h-10 w-10"></div>
+                <div class="flex-1 space-y-2 py-1">
+                    <div class="h-2 bg-slate-200 dark:bg-slate-700 rounded w-3/4"></div>
+                    <div class="space-y-1">
+                        <div class="h-2 bg-slate-200 dark:bg-slate-700 rounded"></div>
+                        <div class="h-2 bg-slate-200 dark:bg-slate-700 rounded w-5/6"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ==========================================
+        // NOTIFICATION SYSTEM (GOOGLE SHEETS CSV)
+        // ==========================================
+        const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTcHzp4Gdob6ujTkGDkEYjWCQ_c8vS5z6-I7QHmnXg_xJDhYbXLdStP4gn7OLBxgvvP7q3bZLLBWj88/pub?output=csv';
+        let notifications = [];
+
+        function toggleNotificationSidebar() {
+            const sidebar = document.getElementById('notifSidebar');
+            const overlay = document.getElementById('notifSidebarOverlay');
+            
+            if (sidebar.classList.contains('translate-x-full')) {
+                // Open
+                sidebar.classList.remove('translate-x-full');
+                overlay.classList.remove('hidden', 'opacity-0', 'pointer-events-none');
+                overlay.classList.add('opacity-100');
+                
+                // Mark as read
+                if (notifications.length > 0) {
+                    const maxId = Math.max(...notifications.map(n => n.id));
+                    localStorage.setItem('lastReadNotifId', maxId);
+                    document.getElementById('notifBadge').classList.add('hidden');
+                    document.getElementById('notifPing').classList.add('hidden');
+                    document.getElementById('bellIcon').classList.remove('animate-[wiggle_1s_ease-in-out_infinite]');
+                }
+            } else {
+                // Close
+                sidebar.classList.add('translate-x-full');
+                overlay.classList.remove('opacity-100');
+                overlay.classList.add('opacity-0', 'pointer-events-none');
+                setTimeout(() => overlay.classList.add('hidden'), 300);
+            }
+        }
+
+        function parseCSV(csv) {
+            const lines = csv.split('
+');
+            const result = [];
+            const headers = lines[0].split(',').map(h => h.trim().toLowerCase());
+            
+            for (let i = 1; i < lines.length; i++) {
+                if (!lines[i].trim()) continue;
+                // Handle commas inside quotes (basic parser)
+                let obj = {};
+                let currentline = lines[i].split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
+                
+                for (let j = 0; j < headers.length; j++) {
+                    let val = currentline[j] ? currentline[j].trim() : '';
+                    if (val.startsWith('"') && val.endsWith('"')) {
+                        val = val.substring(1, val.length - 1).replace(/""/g, '"');
+                    }
+                    obj[headers[j]] = val;
+                }
+                
+                if (obj.id) {
+                    obj.id = parseInt(obj.id);
+                    result.push(obj);
+                }
+            }
+            return result.sort((a, b) => b.id - a.id); // Newest first
+        }
+
+        function renderNotifications() {
+            const listContainer = document.getElementById('notifList');
+            if (notifications.length === 0) {
+                listContainer.innerHTML = '<div class="text-center text-slate-500 dark:text-slate-400 mt-10"><i class="fas fa-inbox text-4xl mb-3 opacity-50"></i><p>Chưa có thông báo nào.</p></div>';
+                return;
+            }
+
+            let html = '';
+            notifications.forEach(notif => {
+                let iconStr = '<i class="fas fa-info-circle text-blue-500"></i>';
+                let bgClass = 'bg-blue-50 dark:bg-blue-900/20 border-blue-100 dark:border-blue-800/50';
+                
+                if (notif.type === 'alert') {
+                    iconStr = '<i class="fas fa-exclamation-triangle text-rose-500"></i>';
+                    bgClass = 'bg-rose-50 dark:bg-rose-900/20 border-rose-100 dark:border-rose-800/50';
+                } else if (notif.type === 'success') {
+                    iconStr = '<i class="fas fa-check-circle text-emerald-500"></i>';
+                    bgClass = 'bg-emerald-50 dark:bg-emerald-900/20 border-emerald-100 dark:border-emerald-800/50';
+                }
+
+                html += `
+                    <div class="p-4 rounded-xl border ${bgClass} transition-colors">
+                        <div class="flex items-start gap-3">
+                            <div class="mt-1 flex-shrink-0 text-lg">${iconStr}</div>
+                            <div>
+                                <h4 class="font-bold text-slate-800 dark:text-white text-sm">${notif.title}</h4>
+                                <span class="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">${notif.date}</span>
+                                <p class="text-sm text-slate-600 dark:text-slate-300 mt-1.5 leading-relaxed">${notif.content}</p>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            listContainer.innerHTML = html;
+        }
+
+        async function initNotifications() {
+            try {
+                // Add wiggle animation to Tailwind via style tag if not present
+                if (!document.getElementById('notifStyles')) {
+                    const style = document.createElement('style');
+                    style.id = 'notifStyles';
+                    style.innerHTML = `
+                        @keyframes wiggle {
+                            0%, 100% { transform: rotate(-10deg); }
+                            50% { transform: rotate(10deg); }
+                        }
+                    `;
+                    document.head.appendChild(style);
+                }
+
+                const response = await fetch(CSV_URL + '&t=' + new Date().getTime());
+                if (!response.ok) throw new Error('Network response was not ok');
+                const csvData = await response.text();
+                
+                notifications = parseCSV(csvData);
+                renderNotifications();
+
+                // Check for unread
+                if (notifications.length > 0) {
+                    const maxId = Math.max(...notifications.map(n => n.id));
+                    const lastReadId = parseInt(localStorage.getItem('lastReadNotifId') || '0');
+                    
+                    if (maxId > lastReadId) {
+                        const unreadCount = notifications.filter(n => n.id > lastReadId).length;
+                        document.getElementById('notifBadge').classList.remove('hidden');
+                        document.getElementById('notifPing').classList.remove('hidden');
+                        document.getElementById('bellIcon').classList.add('animate-[wiggle_1s_ease-in-out_infinite]', 'text-rose-500');
+                    }
+                }
+            } catch (error) {
+                console.error("Lỗi khi tải thông báo:", error);
+                document.getElementById('notifList').innerHTML = '<div class="text-center text-red-500 mt-10"><p>Không thể tải thông báo. Vui lòng kiểm tra kết nối mạng.</p></div>';
+            }
+        }
+
+        // Initialize when DOM is ready
+        document.addEventListener('DOMContentLoaded', initNotifications);
+    </script>
+
 </body>
 </html>
