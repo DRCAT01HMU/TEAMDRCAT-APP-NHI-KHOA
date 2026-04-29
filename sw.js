@@ -1,4 +1,4 @@
-const CACHE_NAME = 'casetest-nhi-pwa-v3.1';
+const CACHE_NAME = 'casetest-nhi-pwa-v4.0';
 const urlsToCache = [
   "./", 
   "./index.html", 
@@ -50,8 +50,19 @@ self.addEventListener('activate', event => {
 });
 
 self.addEventListener('fetch', event => {
+  if (event.request.method !== 'GET') return;
+
   event.respondWith(
-    caches.match(event.request)
-      .then(response => response || fetch(event.request))
+    caches.match(event.request).then(cachedResponse => {
+      const fetchPromise = fetch(event.request).then(networkResponse => {
+        if (networkResponse && networkResponse.status === 200) {
+          caches.open(CACHE_NAME).then(cache => {
+            cache.put(event.request, networkResponse.clone());
+          });
+        }
+        return networkResponse;
+      }).catch(err => {});
+      return cachedResponse || fetchPromise;
+    })
   );
 });
