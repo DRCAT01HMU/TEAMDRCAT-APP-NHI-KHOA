@@ -328,7 +328,7 @@ function App() {
     const [answers, setAnswers] = useState({});
     const [flagged, setFlagged] = useState(new Set());
     const [timeRemaining, setTimeRemaining] = useState(0); 
-    const [showMatrix, setShowMatrix] = useState(false);
+    const [showMatrix, setShowMatrix] = useState(window.innerWidth >= 768);
     const [isPaused, setIsPaused] = useState(false);
         const [isDarkMode, setIsDarkMode] = useState(false);
     const [showDrNote, setShowDrNote] = useState(false);
@@ -1131,10 +1131,11 @@ function App() {
             
             {showMatrix && <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-40 md:hidden transition-opacity" onClick={() => setShowMatrix(false)}></div>}
             
-            <aside className={`fixed md:sticky top-0 right-0 h-screen w-[85vw] max-w-[320px] md:max-w-none md:w-[400px] glass-panel z-50 flex flex-col transition-transform duration-500 ease-in-out ${showMatrix ? 'translate-x-0' : 'translate-x-full md:translate-x-0'} md:order-2 shadow-[-10px_0_30px_rgba(0,0,0,0.05)] dark:shadow-none border-l border-white/40 dark:border-slate-700/50`}>
-                <div className="p-6 border-b border-slate-200/50 dark:border-slate-700/50 flex justify-between items-center bg-white/40 dark:bg-slate-800/40 backdrop-blur-md sticky top-0 z-10">
+            <aside className={`fixed md:sticky top-0 right-0 h-screen glass-panel z-50 flex flex-col transition-all duration-500 ease-in-out ${showMatrix ? 'translate-x-0 w-[85vw] max-w-[320px] md:max-w-none md:w-[400px] opacity-100' : 'translate-x-full w-[85vw] max-w-[320px] md:max-w-none md:w-0 opacity-0 md:border-none'} md:order-2 shadow-[-10px_0_30px_rgba(0,0,0,0.05)] dark:shadow-none border-l border-white/40 dark:border-slate-700/50 overflow-hidden`}>
+                <div className="w-[85vw] max-w-[320px] md:max-w-none md:w-[400px] h-full flex flex-col shrink-0">
+                <div className="p-6 border-b border-slate-200/50 dark:border-slate-700/50 flex justify-between items-center bg-white/40 dark:bg-slate-800/40 backdrop-blur-md sticky top-0 z-10 shrink-0">
                     <h2 className="font-black text-slate-800 dark:text-slate-100 flex items-center gap-3 uppercase tracking-tighter text-base"><div className="w-8 h-8 rounded-lg bg-red-100 dark:bg-red-900/50 flex items-center justify-center text-red-600 dark:text-red-400"><i className="fa-solid fa-grip"></i></div> Bảng câu hỏi</h2>
-                    <button className="md:hidden text-slate-500 p-2 bg-white/50 dark:bg-slate-700/50 rounded-full hover:bg-white dark:hover:bg-slate-600 transition-colors shadow-sm" onClick={() => setShowMatrix(false)}><i className="fa-solid fa-xmark text-lg"></i></button>
+                    <button className="text-slate-500 p-2 bg-white/50 dark:bg-slate-700/50 rounded-full hover:bg-white dark:hover:bg-slate-600 transition-colors shadow-sm" onClick={() => setShowMatrix(false)}><i className="fa-solid fa-xmark text-lg"></i></button>
                 </div>
                 <div className="flex-1 overflow-y-auto p-6 custom-scrollbar grid grid-cols-5 gap-3 content-start">
                     {questions.map((q, i) => {
@@ -1172,12 +1173,13 @@ function App() {
                         );
                     })}
                 </div>
-                <div className="p-6 border-t border-slate-200/50 dark:border-slate-700/50 bg-white/40 dark:bg-slate-800/40 backdrop-blur-md z-10">
+                <div className="p-6 border-t border-slate-200/50 dark:border-slate-700/50 bg-white/40 dark:bg-slate-800/40 backdrop-blur-md z-10 shrink-0">
                     {appState === 'quiz' ? (
                         <button onClick={() => { if(window.confirm('Bạn có chắc chắn muốn nộp bài?')) { setAppState('result'); setShowMatrix(false); } }} className="w-full btn-gradient text-white font-black py-4 rounded-xl shadow-lg flex items-center justify-center gap-2 uppercase tracking-widest hover:shadow-red-500/40 transition-all hover:-translate-y-1"><i className="fa-solid fa-paper-plane text-lg"></i> Nộp bài ngay</button>
                     ) : (
                         <button onClick={restartQuiz} className="w-full bg-slate-800 dark:bg-slate-700 text-white font-black py-4 rounded-xl flex items-center justify-center gap-2 hover:bg-slate-900 dark:hover:bg-slate-600 transition-colors shadow-md hover:-translate-y-1"><i className="fa-solid fa-rotate-right text-lg"></i> Làm lại từ đầu</button>
                     )}
+                </div>
                 </div>
             </aside>
 
@@ -1221,7 +1223,9 @@ function App() {
                             </React.Fragment>
                         )}
                         {appState === 'review' && <div className="px-4 py-2 rounded-xl font-black bg-amber-100/90 dark:bg-amber-900/50 text-amber-700 dark:text-amber-400 flex items-center gap-2 border border-amber-300/50 dark:border-amber-700/50 shadow-sm"><i className="fa-solid fa-eye"></i> <span className="hidden sm:inline uppercase text-xs tracking-wider">Xem lại</span></div>}
-                        <button className="md:hidden bg-white/60 dark:bg-slate-700/60 text-red-600 dark:text-red-400 p-2.5 rounded-xl flex items-center justify-center border border-white/40 dark:border-slate-600/50 shadow-sm" onClick={() => setShowMatrix(true)}><i className="fa-solid fa-bars text-lg"></i></button>
+                        <button className="bg-white/60 dark:bg-slate-700/60 text-red-600 dark:text-red-400 p-2.5 rounded-xl flex items-center justify-center border border-white/40 dark:border-slate-600/50 shadow-sm hover:bg-white dark:hover:bg-slate-600 transition-colors" onClick={() => setShowMatrix(!showMatrix)} title="Ẩn/Hiện Bảng Câu Hỏi">
+                            {showMatrix ? <i className="fa-solid fa-eye-slash text-lg"></i> : <i className="fa-solid fa-bars text-lg"></i>}
+                        </button>
                     </div>
                 </header>
 
