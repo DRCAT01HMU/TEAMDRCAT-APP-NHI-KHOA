@@ -1,4 +1,4 @@
-const CACHE_NAME = 'casetest-nhi-pwa-v4.1';
+const CACHE_NAME = 'casetest-nhi-pwa-v4.1.1';
 const urlsToCache = [
   "./", 
   "./index.html", 
