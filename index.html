@@ -6,13 +6,13 @@
     <link rel="dns-prefetch" href="https://drive.google.com">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>CASE LÂM SÀNG NHI KHOA</title>
+    <title>TEST NHI KHOA</title>
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#0f172a">
     <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/3004/3004458.png">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="TDC Nhi">
+    <meta name="apple-mobile-web-app-title" content="Nhi Khoa">
     
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -359,14 +359,23 @@
             const lockContainer = document.getElementById('lock-container');
             const lockScreen = document.getElementById('lock-screen');
             if(!statusText) return;
-            statusText.innerText = "Đang mã hóa tín hiệu Server...";
-            lockContainer.classList.add('hidden');
+            const verifyBtn = document.getElementById('verifyBtn');
+            
+            statusText.innerText = "Đang kiểm tra trên Server, vui lòng đợi trong giây lát...";
+            document.getElementById('lock-device-code').value = deviceId;
+            lockContainer.classList.remove('hidden');
+            
+            if (verifyBtn) {
+                verifyBtn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Đang xử lý...';
+                verifyBtn.disabled = true;
+                verifyBtn.classList.add('opacity-70', 'cursor-not-allowed');
+            }
 
-            fetch(AUTH_API + "?id=" + deviceId)
-                .then(r => r.json())
+            fetch(AUTH_API + "?id=" + deviceId + "&t=" + new Date().getTime(), { cache: "no-store" }).then(r => r.json())
                 .then(data => {
                     if (data.status === "approved" || data.status === "ok") {
                         localStorage.setItem('TDC_APPROVED_NHI', 'true');
+                        if ('serviceWorker' in navigator) { navigator.serviceWorker.register('./sw.js'); }
                         lockScreen.style.opacity = '0';
                         setTimeout(() => { lockScreen.style.display = 'none'; document.body.style.overflow = 'auto'; }, 500);
                     } else {
@@ -378,12 +387,19 @@
                 .catch(e => {
                     statusText.innerHTML = "Offline.<br>Yêu cầu mạng di động/WiFi để xác thực khóa.";
                     lockContainer.classList.remove('hidden');
+                })
+                .finally(() => {
+                    if (verifyBtn) {
+                        verifyBtn.innerHTML = '<i class="fas fa-sync-alt group-hover:rotate-180 transition-transform duration-500"></i> Xác minh';
+                        verifyBtn.disabled = false;
+                        verifyBtn.classList.remove('opacity-70', 'cursor-not-allowed');
+                    }
                 });
         }
 
         function silentVerify() {
             if(navigator.onLine && localStorage.getItem('TDC_APPROVED_NHI') === 'true') {
-                fetch(AUTH_API + "?id=" + deviceId).then(r => r.json()).then(data => {
+                fetch(AUTH_API + "?id=" + deviceId + "&t=" + new Date().getTime(), { cache: "no-store" }).then(r => r.json()).then(data => {
                     if(data.status === "locked" || data.status === "error") {
                         localStorage.setItem('TDC_APPROVED_NHI', 'false'); window.location.reload();
                     }
@@ -577,9 +593,9 @@
                 <div class="absolute inset-0 w-1/4 bg-white/5 -skew-x-12 -translate-x-full group-hover:animate-[shimmer_1.5s_infinite]"></div>
                 <i class="fas fa-paste text-xl text-emerald-400"></i> <span class="tracking-wide">SAO CHÉP MÃ THIẾT BỊ</span>
             </button>
-            <button onclick="verifyWithServer()" class="w-full bg-transparent hover:bg-emerald-900/20 text-emerald-500 hover:text-emerald-400 font-bold py-3 px-4 border border-emerald-900/30 hover:border-emerald-500/40 rounded-xl transition-all flex items-center justify-center gap-2 group">
-                <i class="fas fa-sync-alt group-hover:rotate-180 transition-transform duration-500"></i> Xác minh
-            </button>
+            <button id="verifyBtn" onclick="verifyWithServer()" class="w-full bg-transparent hover:bg-emerald-900/20 text-emerald-500 hover:text-emerald-400 font-bold py-3 px-4 border border-emerald-900/30 hover:border-emerald-500/40 rounded-xl transition-all flex items-center justify-center gap-2 group">
+                    <i class="fas fa-sync-alt group-hover:rotate-180 transition-transform duration-500"></i> Xác minh
+                </button>
         </div>
         
     </div>
@@ -997,7 +1013,11 @@
         window.addEventListener('focus', () => { updateStats(); renderCases(); silentVerify(); });
 
         if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js').then(r => console.log('SW V9 ready')).catch(e => console.error(e)));
+            window.addEventListener('load', () => {
+                if (localStorage.getItem('TDC_APPROVED_NHI') === 'true') {
+                    navigator.serviceWorker.register('./sw.js').catch(err => console.error(err));
+                }
+            });
         }
     
         // NETWORK STATUS LISTENER
@@ -1645,8 +1665,9 @@
                         const originalTitle = document.title;
                         document.title = 'Sách NHI KHOA: ' + activePdfTitle;
                         
-                        const basePath = window.location.pathname.endsWith('/') ? window.location.pathname : window.location.pathname + '/';
-                        const fakePath = basePath + 'docsach/' + encodeURIComponent(activePdfTitle.replace(/\s+/g, '-'));
+                        const originalPath = window.location.pathname;
+                    const basePath = originalPath.endsWith('/') ? originalPath : originalPath + '/';
+                    const fakePath = basePath + 'docsach/' + encodeURIComponent(activePdfTitle.replace(/\s+/g, '-'));
 
                         gtag('event', 'open_book', {
                             'event_category': 'Medical Ebook',
@@ -1663,7 +1684,7 @@
                         history.replaceState(null, '', fakePath);
                         setTimeout(() => { 
                             document.title = originalTitle; 
-                                history.replaceState(null, '', basePath);
+                                history.replaceState(null, '', originalPath);
                         }, 1000);
                     } catch(e) {}
                 }

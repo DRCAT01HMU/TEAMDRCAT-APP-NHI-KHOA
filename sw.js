@@ -1,4 +1,4 @@
-const CACHE_NAME = 'casetest-nhi-pwa-v4.1.1';
+const CACHE_NAME = 'casetest-nhi-pwa-v4.1.1-update1-fixed1-ui15';
 const urlsToCache = [
   "./", 
   "./index.html", 
@@ -51,6 +51,9 @@ self.addEventListener('activate', event => {
 
 self.addEventListener('fetch', event => {
   if (event.request.method !== 'GET') return;
+
+  // Bo qua cac request cross-origin (nhu goi API Google) de tranh loi PWA iOS
+  if (!event.request.url.startsWith(self.location.origin)) return;
 
   event.respondWith(
     caches.match(event.request).then(cachedResponse => {
