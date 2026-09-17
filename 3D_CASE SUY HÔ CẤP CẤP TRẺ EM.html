@@ -372,7 +372,7 @@ function App() {
     useEffect(() => {
         const rootEl = document.getElementById('root');
         const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
-          if (!vantaEffect && window.VANTA && rootEl && !isIOS) {
+          if (!vantaEffect && window.VANTA && rootEl && !isIOS && window.innerWidth >= 768) {
             const isMobile = window.innerWidth < 768;
             setVantaEffect(window.VANTA.HALO({
                 el: document.body,
@@ -1215,7 +1215,7 @@ function App() {
                     <button className="text-slate-500 p-2 bg-white/50 dark:bg-slate-700/50 rounded-full hover:bg-white dark:hover:bg-slate-600 transition-colors shadow-sm" onClick={() => setShowMatrix(false)}><i className="fa-solid fa-xmark text-lg"></i></button>
                 </div>
                 <div className="flex-1 overflow-y-auto p-6 custom-scrollbar grid grid-cols-5 gap-3 content-start">
-                    {questions.map((q, i) => {
+                    {(showMatrix || window.innerWidth >= 768) && questions.map((q, i) => {
                         let navBtnClass = "h-12 w-full rounded-2xl text-sm font-black border transition-all duration-300 relative flex items-center justify-center hover:brightness-95 bg-white/60 dark:bg-slate-700/60 text-slate-500 border-white/50 dark:border-slate-600/50 dark:text-slate-300 shadow-sm hover:-translate-y-1 hover:shadow-md";
                         if (!!answers[i]) {
                             if (answers[i] === q.answer) {
